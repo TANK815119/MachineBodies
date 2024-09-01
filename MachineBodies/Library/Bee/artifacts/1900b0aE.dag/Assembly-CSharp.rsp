@@ -373,7 +373,6 @@
 "Assets/Scripts/Dummy/ScoreCounterMinimumContact.cs"
 "Assets/Scripts/Dummy/SimceptionAction.cs"
 "Assets/Scripts/Dummy/SimpleReinstantiator.cs"
-"Assets/Scripts/Experience.cs"
 "Assets/Scripts/GeneticManager.cs"
 "Assets/Scripts/Layer.cs"
 "Assets/Scripts/NeuralNetwork.cs"
