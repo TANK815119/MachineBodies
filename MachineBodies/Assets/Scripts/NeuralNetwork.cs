@@ -133,7 +133,7 @@ public class NeuralNetwork
         return mean + standardDeviation * randStdNormal;
     }
 
-    public float[] BackPropogate(float[] error) //returns an array of gradients calculated through backpropogation to match the error
+    public float[] BackPropogate(float[] policyLoss) //returns an array of gradients calculated through backpropogation to match the error
     {
         //TODO
         return null;

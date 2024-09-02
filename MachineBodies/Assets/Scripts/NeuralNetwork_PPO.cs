@@ -35,7 +35,49 @@ public class NeuralNetwork_PPO
 
     private void UpdatePolicy(List<Experience> experiences, List<float> advantages)
     {
-        // Compute policy loss and update policy network
+        // Initialize variables for accumulating gradients
+        float[] totalGradients = new float[policyNetwork.BackPropogate(new float[] { 0f }).Length];
+
+        // Loop through experiences and calculate the policy loss
+        for (int i = 0; i < experiences.Count; i++)
+        {
+            // Get the current state from the experience
+            float[] state = experiences[i].State;
+
+            // Calculate the probability of the taken actions under the current policy
+            float[] actionProbs = policyNetwork.ForwardPass(state);
+
+            // Calculate the policy loss for each action
+            float[] policyLoss = new float[actionProbs.Length];
+            for (int j = 0; j < policyLoss.Length; j++)
+            {
+                policyLoss[j] = -Mathf.Log(actionProbs[j]) * advantages[i];
+            }
+
+            // Compute the gradients for the policy network based on the policy loss
+            float[] instantGradients = policyNetwork.BackPropogate(policyLoss);
+
+            // Accumulate the gradients
+            for (int k = 0; k < totalGradients.Length; k++)
+            {
+                totalGradients[k] += instantGradients[k];
+            }
+        }
+
+        // Average the gradients
+        for (int i = 0; i < totalGradients.Length; i++)
+        {
+            totalGradients[i] /= experiences.Count;
+        }
+
+        // Update the policy network parameters using the averaged gradients
+        float[] policyNetworkParameters = policyNetwork.ReadNeuralNetwork();
+        for (int i = 0; i < totalGradients.Length; i++)
+        {
+            policyNetworkParameters[i] -= policyLearningRate * totalGradients[i];
+        }
+
+        policyNetwork.WriteNeuralNetwork(policyNetworkParameters);
     }
 
     private void UpdateValue(List<Experience> experiences)
@@ -46,7 +88,7 @@ public class NeuralNetwork_PPO
         float[] totalGradients = new float[valueNetwork.BackPropogate(new float[] { 0f }).Length]; //an array that can hold the gradients of all weights and biases from backpropagation
 
         // loop through the experiences to find the error between predicted and actual reward
-        for (int i = 1; i < experiences.Count; i++)
+        for (int i = 0; i < experiences.Count; i++)
         {
             //find the predicted reward
             float predictedValue = valueNetwork.ForwardPass(experiences[i].State)[0];
@@ -76,7 +118,7 @@ public class NeuralNetwork_PPO
         //average the gradients
         for(int i = 0; i < totalGradients.Length; i++)
         {
-            totalGradients[i] /= experiences.Count - 1;
+            totalGradients[i] /= experiences.Count;
         }
 
         //update the value network parameters
@@ -93,16 +135,6 @@ public class NeuralNetwork_PPO
     {
         // Compute advantage estimates
         return new List<float>();
-    }
-
-    public float EvaluatePolicy(float[] state)
-    {
-        return policyNetwork.ForwardPass(state)[0];
-    }
-
-    public float EvaluateValue(float[] state)
-    {
-        return valueNetwork.ForwardPass(state)[0];
     }
 
     public void SetLearningRate(float policyLR, float valueLR)
