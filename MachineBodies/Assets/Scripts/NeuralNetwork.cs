@@ -133,6 +133,23 @@ public class NeuralNetwork
         return mean + standardDeviation * randStdNormal;
     }
 
+    public float[] BackPropogate(float[] error) //returns an array of gradients calculated through backpropogation to match the error
+    {
+        //TODO
+        return null;
+    }
+
+    public float[] ReadNeuralNetwork() //turn the entire neural network into an 1d array of floats to represent parameters
+    {
+        //TODO
+        return null;
+    }
+    
+    public void WriteNeuralNetwork(float[] parameters) //turn an entire 1d array of floats into the parameters of the neural network
+    {
+        //TODO
+    }
+
     //nether save or load are implemented
     //will have to test very soon
     //I should probably test with a simple goal
