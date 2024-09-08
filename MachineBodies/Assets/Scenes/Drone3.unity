@@ -749,7 +749,7 @@ Transform:
   m_GameObject: {fileID: 1039959710}
   serializedVersion: 2
   m_LocalRotation: {x: 0.19509031, y: 0, z: 0, w: 0.98078537}
-  m_LocalPosition: {x: 0, y: 5, z: -10}
+  m_LocalPosition: {x: 0, y: 2.5, z: -5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -894,7 +894,7 @@ MonoBehaviour:
   goalCreator: {fileID: 1118804114}
   creatureVolume: 100
   creatureSpaceing: 1
-  simLengthMax: 30
+  simLengthMax: 4
   simulationSpeed: 10
   genText: {fileID: 11661170}
   reproducingCreatures: 30

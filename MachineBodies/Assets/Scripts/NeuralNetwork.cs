@@ -133,10 +133,133 @@ public class NeuralNetwork
         return mean + standardDeviation * randStdNormal;
     }
 
-    public float[] BackPropogate(float[] policyLoss) //returns an array of gradients calculated through backpropogation to match the error
+    public float[] BackPropogate(float[] policyLoss, float[] stowedInputs) //returns an array of gradients calculated through backpropogation to match the error(assumes ReLu)
     {
-        //TODO
-        return null;
+        float[] gradients = new float[this.ReadNeuralNetwork().Length]; // Holds all the gradients (for weights and biases)
+
+        // Initialize delta as the gradient of the loss with respect to the output (the last layer)
+        float[] delta = policyLoss; // For the output layer, delta is just the loss gradient
+
+        // Loop backwards through the layers
+        for (int i = layerArr.Length - 1; i >= 0; i--)
+        {
+            Layer currentLayer = layerArr[i];
+
+            //THESE TWO OPERATIONS ARE VERY ESPENSIVE, WILL LIKELY STORE THE OUTPUTS OF LAYERS IN THE FUTURE INSTEAD
+            float[] layerOutput = RecalculateLayerOutput(stowedInputs, i); // Recalculate layer outputs
+            float[] layerInput = RecalculateLayerOutput(stowedInputs, i - 1); //recacluate layer inputs
+
+            // Compute ReLU derivative for this layer's outputs
+            float[] dReLU = new float[layerOutput.Length];
+            for (int j = 0; j < layerOutput.Length; j++)
+            {
+                // ReLU derivative: 1 if output > 0, 0 otherwise
+                dReLU[j] = layerOutput[j] > 0 ? 1f : 0f;
+            }
+
+            // Multiply delta by the ReLU derivative (element-wise)
+            for (int j = 0; j < delta.Length; j++)
+            {
+                delta[j] *= dReLU[j];
+            }
+
+            // Backpropagate gradients to weights and biases for this layer
+            for (int j = 0; j < currentLayer.weightsArray.GetLength(0); j++) // Loop over each neuron
+            {
+                for (int k = 0; k < currentLayer.weightsArray.GetLength(1); k++) // Loop over each input
+                {
+                    // Gradient for weight[j, k] is delta[j] * input to that neuron
+                    // Gradients are stored by layerIndex * (numNodes*numInputs + numBiases) + numNode*numInputs + numInput to store weights in 1d
+                    int weightIndex = GetWeightIndex(i, j, k);
+                    gradients[weightIndex] = delta[j] * layerInput[k];
+                }
+
+                // Gradient for bias[j] is just delta[j]
+                // Gradients are stored by layerIndex * (numNodes*numInputs + numBiases) + numNodes*numInputs + numBias to store biases in 1d
+                int biasIndex = GetBiasIndex(i, j);
+                gradients[biasIndex] = delta[j];
+            }
+
+            // If it's not the input layer, calculate the delta for the previous layer
+            if (i > 0)
+            {
+                float[] newDelta = new float[layerArr[i - 1].nodeArray.Length]; // Delta for the previous layer
+                for (int j = 0; j < newDelta.Length; j++) // Loop over previous layer's neurons
+                {
+                    newDelta[j] = 0; // Initialize new delta for each neuron in the previous layer
+                    for (int k = 0; k < delta.Length; k++) // Loop over current layer's neurons
+                    {
+                        newDelta[j] += delta[k] * currentLayer.weightsArray[k, j]; // Backpropagate delta to previous layer
+                    }
+                }
+                delta = newDelta; // Update delta for the next layer back in the chain
+            }
+        }
+
+        return gradients; // Return all the computed gradients
+    }
+
+    private float[] RecalculateLayerOutput(float[] inputs, int layerIndex)
+    {
+        // Loop through the layers up to the given index
+        for (int i = 0; i <= layerIndex; i++) // No need for +1 here as previously thought
+        {
+            if (i == 0) // First layer
+            {
+                // Forward pass for the first layer using the original input
+                layerArr[i].Forward(inputs);
+                layerArr[i].Activation(); // Apply ReLU or other activation functions
+            }
+            else if (i == layerArr.Length - 1) // Final layer
+            {
+                // Forward pass for the last layer using the output from the previous layer
+                layerArr[i].Forward(layerArr[i - 1].nodeArray);
+                // No activation if it's the output layer
+            }
+            else // Hidden layers
+            {
+                // Forward pass for hidden layers using the output from the previous layer
+                layerArr[i].Forward(layerArr[i - 1].nodeArray);
+                layerArr[i].Activation(); // Apply activation functions
+            }
+        }
+
+        // Return the node array (output) of the current layer at layerIndex
+        return layerArr[layerIndex].nodeArray;
+    }
+
+    int GetWeightIndex(int layerIndex, int neuronIndex, int inputIndex)
+    {
+        // Gradients were stored by layerIndex * (numNodes*numInputs + numBiases) + numNode*numInputs + numInput to store weights in 1d
+        // This code should account for the varying size of the input and output layers
+        int offset = 0;
+
+        // Accumulate offsets for previous layers' weights and biases
+        for (int i = 0; i < layerIndex; i++)
+        {
+            offset += layerArr[i].weightsArray.GetLength(0) * layerArr[i].weightsArray.GetLength(1); // Weights
+            offset += layerArr[i].biasesArray.Length; // Biases
+        }
+
+        // Add current layer weight index
+        return offset + (neuronIndex * layerArr[layerIndex].weightsArray.GetLength(1)) + inputIndex;
+    }
+
+    int GetBiasIndex(int layerIndex, int neuronIndex)
+    {
+        // Gradients were stored by layerIndex * (numNodes*numInputs + numBiases) + numNodes*numInputs + numBias to store biases in 1d
+        // This code should account for the varying size of the input and output layers
+        int offset = 0;
+
+        // Accumulate offsets for previous layers' weights and biases
+        for (int i = 0; i < layerIndex; i++)
+        {
+            offset += layerArr[i].weightsArray.GetLength(0) * layerArr[i].weightsArray.GetLength(1); // Weights
+            offset += layerArr[i].biasesArray.Length; // Biases
+        }
+
+        // Add current layer bias index
+        return offset + (layerArr[layerIndex].weightsArray.GetLength(0) * layerArr[layerIndex].weightsArray.GetLength(1)) + neuronIndex;
     }
 
     public float[] ReadNeuralNetwork() //turn the entire neural network into an 1d array of floats to represent parameters

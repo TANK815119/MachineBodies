@@ -29,14 +29,14 @@ public class NeuralNetwork_PPO
     public void Train(List<Experience> experiences)
     {
         List<float> advantages = CalculateAdvantages(experiences);
-        UpdatePolicy(experiences, advantages);
-        UpdateValue(experiences);
+        UpdatePolicyNeuralNetwork(experiences, advantages);
+        UpdateValueNeuralNetwork(experiences);
     }
 
-    private void UpdatePolicy(List<Experience> experiences, List<float> advantages)
+    private void UpdatePolicyNeuralNetwork(List<Experience> experiences, List<float> advantages)
     {
         // Initialize variables for accumulating gradients
-        float[] totalGradients = new float[policyNetwork.BackPropogate(new float[] { 0f }).Length];
+        float[] totalGradients = new float[policyNetwork.ReadNeuralNetwork().Length];
 
         // Loop through experiences and calculate the policy loss
         for (int i = 0; i < experiences.Count; i++)
@@ -55,7 +55,7 @@ public class NeuralNetwork_PPO
             }
 
             // Compute the gradients for the policy network based on the policy loss
-            float[] instantGradients = policyNetwork.BackPropogate(policyLoss);
+            float[] instantGradients = policyNetwork.BackPropogate(policyLoss, experiences[i].State);
 
             // Accumulate the gradients
             for (int k = 0; k < totalGradients.Length; k++)
@@ -80,12 +80,12 @@ public class NeuralNetwork_PPO
         policyNetwork.WriteNeuralNetwork(policyNetworkParameters);
     }
 
-    private void UpdateValue(List<Experience> experiences)
+    private void UpdateValueNeuralNetwork(List<Experience> experiences)
     {
         // Compute value loss and update value network
         float discountFactor = 0.99f;
         //float totalLoss = 0f; -- USE THE TOTALLOSS HERE IN THE FUTURE TO RECORD PROGRESS
-        float[] totalGradients = new float[valueNetwork.BackPropogate(new float[] { 0f }).Length]; //an array that can hold the gradients of all weights and biases from backpropagation
+        float[] totalGradients = new float[valueNetwork.ReadNeuralNetwork().Length]; //an array that can hold the gradients of all weights and biases from backpropagation
 
         // loop through the experiences to find the error between predicted and actual reward
         for (int i = 0; i < experiences.Count; i++)
@@ -108,7 +108,7 @@ public class NeuralNetwork_PPO
             //totalLoss += lossFunction;
 
             //compute the instantenuos gradient change to each weight and bias using backpropogation and add to total gradients
-            float[] instantGradients = valueNetwork.BackPropogate(new float[] { lossFunction });
+            float[] instantGradients = valueNetwork.BackPropogate(new float[] { lossFunction }, experiences[i].State);
             for(int j = 0; j < totalGradients.Length; j++)
             {
                 totalGradients[j] += instantGradients[j];
