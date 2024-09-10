@@ -228,7 +228,7 @@ public class NeuralNetwork
         return layerArr[layerIndex].nodeArray;
     }
 
-    int GetWeightIndex(int layerIndex, int neuronIndex, int inputIndex)
+    private int GetWeightIndex(int layerIndex, int neuronIndex, int inputIndex)
     {
         // Gradients were stored by layerIndex * (numNodes*numInputs + numBiases) + numNode*numInputs + numInput to store weights in 1d
         // This code should account for the varying size of the input and output layers
@@ -245,7 +245,7 @@ public class NeuralNetwork
         return offset + (neuronIndex * layerArr[layerIndex].weightsArray.GetLength(1)) + inputIndex;
     }
 
-    int GetBiasIndex(int layerIndex, int neuronIndex)
+    private int GetBiasIndex(int layerIndex, int neuronIndex)
     {
         // Gradients were stored by layerIndex * (numNodes*numInputs + numBiases) + numNodes*numInputs + numBias to store biases in 1d
         // This code should account for the varying size of the input and output layers
@@ -262,15 +262,63 @@ public class NeuralNetwork
         return offset + (layerArr[layerIndex].weightsArray.GetLength(0) * layerArr[layerIndex].weightsArray.GetLength(1)) + neuronIndex;
     }
 
+    private int CountParameters()
+    {
+        // Count up the number of total weights and biases, hope this code isnt wrong
+        int count = 0;
+        for (int i = 0; i < layerArr.Length; i++)
+        {
+            count += layerArr[i].weightsArray.GetLength(0) * layerArr[i].weightsArray.GetLength(1) + layerArr[i].biasesArray.Length;
+        }
+
+        return count;
+    }
+
     public float[] ReadNeuralNetwork() //turn the entire neural network into an 1d array of floats to represent parameters
     {
-        //TODO
-        return null;
+        // Put all parameters into a 1d list to be turned into array later
+        float[] parameters = new float[CountParameters()];
+
+        //loop through layers
+        for(int i = 0; i < layerArr.Length; i++)
+        {
+            //loop through neurons
+            for(int j = 0; j < layerArr[i].weightsArray.GetLength(0); j++)
+            {
+                //loop throguh associated weights
+                for(int k = 0; k < layerArr[i].weightsArray.GetLength(1); k++)
+                {
+                    //add weight
+                    parameters[GetWeightIndex(i, j, k)] = layerArr[i].weightsArray[k, j];
+                }
+
+                //add bias
+                parameters[GetBiasIndex(i, j)] = layerArr[i].biasesArray[j];
+            }
+        }
+
+        return parameters;
     }
     
     public void WriteNeuralNetwork(float[] parameters) //turn an entire 1d array of floats into the parameters of the neural network
     {
-        //TODO
+        //loop through layers
+        for (int i = 0; i < layerArr.Length; i++)
+        {
+            //loop through neurons
+            for (int j = 0; j < layerArr[i].weightsArray.GetLength(0); j++)
+            {
+                //loop throguh associated weights
+                for (int k = 0; k < layerArr[i].weightsArray.GetLength(1); k++)
+                {
+                    //assign weight
+                    layerArr[i].weightsArray[k, j] = parameters[GetWeightIndex(i, j, k)];
+                }
+
+                //assign bias
+                layerArr[i].biasesArray[j] = parameters[GetBiasIndex(i, j)];
+            }
+        }
     }
 
     //nether save or load are implemented
