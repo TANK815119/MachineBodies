@@ -133,8 +133,23 @@ public class NeuralNetwork_PPO
 
     private List<float> CalculateAdvantages(List<Experience> experiences)
     {
-        // Compute advantage estimates
-        return new List<float>();
+        // Compute advantage estimates as (real reward - expected reward from value network)
+
+        List<float> advantages = new List<float>();
+
+        for (int i = 0; i < experiences.Count; i++)
+        {
+            // Get expected value from the value network for the current state
+            float expectedValue = valueNetwork.ForwardPass(experiences[i].State)[0];
+
+            // Compute the advantage as real reward - expected value
+            float advantage = experiences[i].Reward - expectedValue;
+
+            // Add the computed advantage to the list
+            advantages.Add(advantage);
+        }
+
+        return advantages;
     }
 
     public void SetLearningRate(float policyLR, float valueLR)
