@@ -19,7 +19,7 @@ public class NeuralNetwork_PPO
         valueNetwork = new NeuralNetwork(inputSize, 1, hiddenLayers, hiddenUnits); //could have different dimensions
                                                                                    // Set default values for hyperparameters
         policyLearningRate = 0.001f;
-        valueLearningRate = 0.001f;
+        valueLearningRate = 0.0001f;
         clipRange = 0.2f;
     }
 
@@ -241,10 +241,10 @@ public class NeuralNetwork_PPO
         return policyNetwork;
     }
 
-    public void RandomizeNeuralNetworks(float standardDeviation)
+    public void InnitializeNeuralNetworksHe()
     {
-        policyNetwork.Mutate(100f, standardDeviation);
-        valueNetwork.Mutate(100f, standardDeviation);
+        policyNetwork.InitializeWeightsHe();
+        valueNetwork.InitializeWeightsHe();
     }
 
     public void SetLearningRates(float policy, float value) // reccomended 0.001f, 0.0001f

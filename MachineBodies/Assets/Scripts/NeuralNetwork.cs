@@ -120,6 +120,29 @@ public class NeuralNetwork
         }
     }
 
+    public void InitializeWeightsHe() //Great for innitializing weights of ReLu actication functions
+    {
+        for (int layerIndex = 0; layerIndex < layerArr.Length; layerIndex++) // loop through layers
+        {
+            Layer thisLayer = layerArr[layerIndex];
+            int fanIn = thisLayer.weightsArray.GetLength(1); // Number of input connections
+
+            // Calculate standard deviation for He initialization
+            float standardDeviation = Mathf.Sqrt(2f / fanIn);
+
+            for (int neuroIndex = 0; neuroIndex < thisLayer.weightsArray.GetLength(0); neuroIndex++) // loop through neurons
+            {
+                for (int inputIndex = 0; inputIndex < thisLayer.weightsArray.GetLength(1); inputIndex++) // loop through input weights
+                {
+                    thisLayer.weightsArray[neuroIndex, inputIndex] = RandomGauss(0f, standardDeviation);
+                }
+
+                // Initialize biases to zero or small values
+                thisLayer.biasesArray[neuroIndex] = 0f;  // Often initialized to 0 or small value
+            }
+        }
+    }
+
     private static float RandomGauss(float mean, float standardDeviation)
     {
         // Generate two uniform random numbers between 0 and 1
@@ -153,8 +176,8 @@ public class NeuralNetwork
             float[] dReLU = new float[layerOutput.Length];
             for (int j = 0; j < layerOutput.Length; j++)
             {
-                // ReLU derivative: 1 if output > 0, 0 otherwise
-                dReLU[j] = layerOutput[j] > 0 ? 1f : 0f;
+                // leaky ReLU derivative: 1 if output > 0, 0.001f otherwise
+                dReLU[j] = layerOutput[j] > 0 ? 1f : 0.001f;
             }
 
             // Multiply delta by the ReLU derivative (element-wise)
@@ -223,6 +246,13 @@ public class NeuralNetwork
                 layerArr[i].Activation(); // Apply activation functions
             }
         }
+
+        //string str = "Recalculated Layer Output: ";
+        //for (int i = 0; i < layerArr[layerIndex].nodeArray.Length; i++)
+        //{
+        //    str += layerArr[layerIndex].nodeArray[i] + ", ";
+        //}
+        //Debug.Log(str);
 
         // Return the node array (output) of the current layer at layerIndex
         return layerArr[layerIndex].nodeArray;

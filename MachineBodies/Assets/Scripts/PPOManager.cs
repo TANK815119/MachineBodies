@@ -45,7 +45,7 @@ public class PPOManager : MonoBehaviour
 
         int[] netDimens = simception.GetNetworkDimensions();
         neuralNetworkPPO = new NeuralNetwork_PPO(netDimens[0], netDimens[1], netDimens[2], netDimens[3]);
-        neuralNetworkPPO.RandomizeNeuralNetworks(0.1f);
+        neuralNetworkPPO.InnitializeNeuralNetworksHe();
 
         experiences = new List<Experience>();
         simceptions = new Simception[creatureVolume];
