@@ -60,7 +60,7 @@ public class NeuralNetwork
             else if(i == layerArr.Length - 1) //final layer
             {
                 layerArr[i].Forward(layerArr[i - 1].nodeArray);
-                //no activation
+                layerArr[i].Activation(); //activation, actually. I cant handle negatives
             }
             else //hidden layers(default)
             {
@@ -141,7 +141,7 @@ public class NeuralNetwork
         float[] delta = policyLoss; // For the output layer, delta is just the loss gradient
 
         // Loop backwards through the layers
-        for (int i = layerArr.Length - 1; i >= 0; i--)
+        for (int i = layerArr.Length - 1; i > 0; i--) //removed = from >= to not go out of bounds
         {
             Layer currentLayer = layerArr[i];
 
@@ -289,7 +289,8 @@ public class NeuralNetwork
                 for(int k = 0; k < layerArr[i].weightsArray.GetLength(1); k++)
                 {
                     //add weight
-                    parameters[GetWeightIndex(i, j, k)] = layerArr[i].weightsArray[k, j];
+                    float parameter = layerArr[i].weightsArray[j, k]; //reversed k and j and it worked??
+                    parameters[GetWeightIndex(i, j, k)] = parameter;
                 }
 
                 //add bias
@@ -312,7 +313,7 @@ public class NeuralNetwork
                 for (int k = 0; k < layerArr[i].weightsArray.GetLength(1); k++)
                 {
                     //assign weight
-                    layerArr[i].weightsArray[k, j] = parameters[GetWeightIndex(i, j, k)];
+                    layerArr[i].weightsArray[j, k] = parameters[GetWeightIndex(i, j, k)]; //reversed k and j and it worked??
                 }
 
                 //assign bias

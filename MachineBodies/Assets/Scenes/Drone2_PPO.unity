@@ -873,7 +873,7 @@ GameObject:
   - component: {fileID: 1118804111}
   - component: {fileID: 1118804114}
   m_Layer: 0
-  m_Name: GeneticManager
+  m_Name: PPOManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -925,7 +925,7 @@ Transform:
   m_GameObject: {fileID: 1118804110}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -40, y: 1, z: 0}
+  m_LocalPosition: {x: 0, y: 1, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -945,10 +945,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   creature: {fileID: 5282539683173208859, guid: 8d14f3119fb118e479867cacf0220051, type: 3}
   goalCreator: {fileID: 1118804111}
-  creatureVolume: 10
-  creatureSpaceing: 9
-  simLengthMax: 1
-  simulationSpeed: 1
+  creatureVolume: 1
+  creatureSpaceing: 5
+  simLengthMax: 3
+  simulationSpeed: 10
   genText: {fileID: 11661170}
 --- !u!1001 &1942365011
 PrefabInstance:

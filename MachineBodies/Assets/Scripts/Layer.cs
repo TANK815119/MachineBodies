@@ -38,13 +38,13 @@ public class Layer
     }
 
     //this the mathematical activation function that makes it a neural netwrok and nota linear regression model
-    public void Activation() //relu method
+    public void Activation() //leaky relu method
     {
         for (int i = 0; i < numNodes; i++)
         {
-            if (nodeArray[i] < 0)
+            if (nodeArray[i] <= 0)
             {
-                nodeArray[i] = 0;
+                nodeArray[i] = 0.001f;
             }
         }
     }

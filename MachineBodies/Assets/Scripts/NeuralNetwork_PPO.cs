@@ -32,8 +32,22 @@ public class NeuralNetwork_PPO
 
     private void UpdatePolicyNeuralNetwork(List<Experience> experiences, List<float> advantages)
     {
+        string str_2 = "advantages: ";
+        for (int i = 0; i < advantages.Count; i++)
+        {
+            str_2 += advantages[i] + ", ";
+        }
+        Debug.Log(str_2);
+
         // Initialize variables for accumulating gradients
         float[] totalGradients = new float[policyNetwork.ReadNeuralNetwork().Length];
+
+        //string str_1 = "totalGradients blank: ";
+        //for (int i = 0; i < totalGradients.Length; i++)
+        //{
+        //    str_1 += totalGradients[i] + ", ";
+        //}
+        //Debug.Log(str_1);
 
         // Loop through experiences and calculate the policy loss
         for (int i = 0; i < experiences.Count; i++)
@@ -44,12 +58,26 @@ public class NeuralNetwork_PPO
             // Calculate the probability of the taken actions under the current policy
             float[] actionProbs = policyNetwork.ForwardPass(state);
 
+            //string str0c = "actionProbs: ";
+            //for (int k = 0; k < actionProbs.Length; k++)
+            //{
+            //    str0c += actionProbs[k] + ", ";
+            //}
+            //Debug.Log(str0c);
+
             // Calculate the policy loss for each action
             float[] policyLoss = new float[actionProbs.Length];
             for (int j = 0; j < policyLoss.Length; j++)
             {
                 policyLoss[j] = -Mathf.Log(actionProbs[j]) * advantages[i];
             }
+
+            //string str0b = "policylosss: ";
+            //for (int k = 0; k < policyLoss.Length; k++)
+            //{
+            //    str0b += policyLoss[k] + ", ";
+            //}
+            //Debug.Log(str0b);
 
             // Compute the gradients for the policy network based on the policy loss
             float[] instantGradients = policyNetwork.BackPropogate(policyLoss, experiences[i].State);
@@ -59,7 +87,21 @@ public class NeuralNetwork_PPO
             {
                 totalGradients[k] += instantGradients[k];
             }
+
+            //string str0a = "backpropogated instant gradients: ";
+            //for (int k = 0; k < instantGradients.Length; k++)
+            //{
+            //    str0a += instantGradients[k] + ", ";
+            //}
+            //Debug.Log(str0a);
         }
+
+        string str0 = "totalGradients Network: ";
+        for (int i = 0; i < totalGradients.Length; i++)
+        {
+            str0 += totalGradients[i] + ", ";
+        }
+        Debug.Log(str0);
 
         // Average the gradients
         for (int i = 0; i < totalGradients.Length; i++)
@@ -67,12 +109,34 @@ public class NeuralNetwork_PPO
             totalGradients[i] /= experiences.Count;
         }
 
+        string str1 = "totalavergaeGradients Network: ";
+        for (int i = 0; i < totalGradients.Length; i++)
+        {
+            str1 += totalGradients[i] + ", ";
+        }
+        Debug.Log(str1);
+
         // Update the policy network parameters using the averaged gradients
         float[] policyNetworkParameters = policyNetwork.ReadNeuralNetwork();
+
+        //string str2 = "policyNetworkParameters Network: ";
+        //for (int i = 0; i < policyNetworkParameters.Length; i++)
+        //{
+        //    str2 += policyNetworkParameters[i] + ", ";
+        //}
+        //Debug.Log(str2);
+
         for (int i = 0; i < totalGradients.Length; i++)
         {
             policyNetworkParameters[i] -= policyLearningRate * totalGradients[i];
         }
+
+        string str3 = "Writing Policy Network: ";
+        for (int i = 0; i < policyNetworkParameters.Length; i++)
+        {
+            str3 += policyNetworkParameters[i] + ", ";
+        }
+        Debug.Log(str3);
 
         policyNetwork.WriteNeuralNetwork(policyNetworkParameters);
     }
@@ -126,6 +190,13 @@ public class NeuralNetwork_PPO
         }
 
         valueNetwork.WriteNeuralNetwork(valueNetworkParameters);
+
+        string str3 = "Writing Value Network: ";
+        for (int i = 0; i < valueNetworkParameters.Length; i++)
+        {
+            str3 += valueNetworkParameters[i] + ", ";
+        }
+        Debug.Log(str3);
     }
 
     private List<float> CalculateAdvantages(List<Experience> experiences)
@@ -168,6 +239,18 @@ public class NeuralNetwork_PPO
     public NeuralNetwork GetPolicyNeuralNetwork()
     {
         return policyNetwork;
+    }
+
+    public void RandomizeNeuralNetworks(float standardDeviation)
+    {
+        policyNetwork.Mutate(100f, standardDeviation);
+        valueNetwork.Mutate(100f, standardDeviation);
+    }
+
+    public void SetLearningRates(float policy, float value) // reccomended 0.001f, 0.0001f
+    {
+        policyLearningRate = policy;
+        valueLearningRate = value;
     }
 
     //[Serializable]

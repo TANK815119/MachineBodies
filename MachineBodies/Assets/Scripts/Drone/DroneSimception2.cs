@@ -41,6 +41,15 @@ public class DroneSimception2 : Simception
 
         outputs = neuralNetwork.ForwardPass(inputs);
         float thrust = outputs[0];
+        //Debug.Log(thrust);
+
+        //float[] neuralNetArr = neuralNetwork.ReadNeuralNetwork();
+        //string str = "";
+        //for (int i = 0; i < neuralNetArr.Length; i++)
+        //{
+        //    str += neuralNetArr[i] + ", ";
+        //}
+        //Debug.Log(str);
 
         rb.AddForce(Vector3.up * thrust, ForceMode.Force);
 

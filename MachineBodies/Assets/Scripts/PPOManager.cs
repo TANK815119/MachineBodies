@@ -22,6 +22,8 @@ public class PPOManager : MonoBehaviour
     private List<Experience> experiences;
     private Simception[] simceptions;
     private NeuralNetwork_PPO neuralNetworkPPO;
+    [SerializeField] private float policyLearningRate = 0.003f;
+    [SerializeField] private float valueLearningRate = 0.0003f;
 
     private GameObject[] creatures;
 
@@ -31,22 +33,8 @@ public class PPOManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        creatures = new GameObject[creatureVolume];
-
-        genText.text = "Generation: zero";
-
-        //generate first batch at random
-        if (goalCreator != null)
-        {
-            goalCreator.GenerateGoal();
-        }
-
-        creatures = RepopulateCreatures(null);
-
-        experiences = new List<Experience>();
-
         //make the PPO neural network form scratch using parameters in the simception
-        if(creature.TryGetComponent(out Simception simception))
+        if (creature.TryGetComponent(out Simception simception))
         {
 
         }
@@ -57,16 +45,34 @@ public class PPOManager : MonoBehaviour
 
         int[] netDimens = simception.GetNetworkDimensions();
         neuralNetworkPPO = new NeuralNetwork_PPO(netDimens[0], netDimens[1], netDimens[2], netDimens[3]);
+        neuralNetworkPPO.RandomizeNeuralNetworks(0.1f);
+
+        experiences = new List<Experience>();
+        simceptions = new Simception[creatureVolume];
+        creatures = new GameObject[creatureVolume];
+
+        genText.text = "Generation: zero";
+
+        //generate first batch at random
+        if (goalCreator != null)
+        {
+            goalCreator.GenerateGoal();
+        }
+
+        creatures = RepopulateCreatures(neuralNetworkPPO.GetPolicyNeuralNetwork());
     }
 
     // Update is called once per frame
     void FixedUpdate()
     {
         //collect collective experiences
-        for(int i = 0; i < creatures.Length; i++)
+        for(int i = 0; i < simceptions.Length; i++)
         {
-            Experience newExperience = new Experience(simceptions[i].GetLastInputs(), simceptions[i].CalculateLastReward());
-            experiences.Add(newExperience);
+            if(simceptions[i] != null && simceptions[i].GetLastInputs() != null)
+            {
+                Experience newExperience = new Experience(simceptions[i].GetLastInputs(), simceptions[i].CalculateLastReward());
+                experiences.Add(newExperience);
+            }
         }
 
         simLength += Time.fixedDeltaTime;
@@ -88,6 +94,9 @@ public class PPOManager : MonoBehaviour
         //train the neural network on all the collected data
         neuralNetworkPPO.Train(experiences);
         NeuralNetwork newPolicyNetwork = neuralNetworkPPO.GetPolicyNeuralNetwork();
+
+        //set learning rates
+        neuralNetworkPPO.SetLearningRates(policyLearningRate, valueLearningRate);
 
         //get rid of the previous generation of creatures after copying the best
         CullPreviousCreatures();
