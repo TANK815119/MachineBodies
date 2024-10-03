@@ -61,4 +61,18 @@ public class DroneSimception : Simception
     {
         //throw new System.NotImplementedException();
     }
+
+    public override float[] GetLastInputs()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public override float CalculateLastReward()
+    {
+        throw new System.NotImplementedException();
+    }
+    public override int[] GetNetworkDimensions()
+    {
+        throw new System.NotImplementedException();
+    }
 }

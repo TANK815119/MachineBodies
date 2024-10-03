@@ -11,7 +11,6 @@ public class NeuralNetwork_PPO
     private float policyLearningRate;
     private float valueLearningRate;
     private float clipRange;
-    private List<Experience> networkExperiences;
 
     // Initialization and PPO-specific methods
     public NeuralNetwork_PPO(int inputSize, int outputSize, int hiddenLayers, int hiddenUnits)
@@ -22,8 +21,6 @@ public class NeuralNetwork_PPO
         policyLearningRate = 0.001f;
         valueLearningRate = 0.001f;
         clipRange = 0.2f;
-
-        networkExperiences = new List<Experience>();
     }
 
     public void Train(List<Experience> experiences)
@@ -163,23 +160,33 @@ public class NeuralNetwork_PPO
         clipRange = clip;
     }
 
-    [Serializable]
-    public class Experience
+    public void SetPolicyNetwork(NeuralNetwork neuralNetwork)
     {
-        public float[] State { get; private set; }
-        public float[] Action { get; private set; }
-        public float Reward { get; private set; }
-        public float[] NextState { get; private set; }
-        public bool Done { get; private set; }
-
-        public Experience(float[] state, float[] action, float reward, float[] nextState, bool done)
-        {
-            State = state;
-            Action = action;
-            Reward = reward;
-            NextState = nextState;
-            Done = done;
-        }
+        policyNetwork = neuralNetwork;
     }
+
+    public NeuralNetwork GetPolicyNeuralNetwork()
+    {
+        return policyNetwork;
+    }
+
+    //[Serializable]
+    //public class Experience
+    //{
+    //    public float[] State { get; private set; }
+    //    public float[] Action { get; private set; }
+    //    public float Reward { get; private set; }
+    //    public float[] NextState { get; private set; }
+    //    public bool Done { get; private set; }
+
+    //    public Experience(float[] state, float[] action, float reward, float[] nextState, bool done)
+    //    {
+    //        State = state;
+    //        Action = action;
+    //        Reward = reward;
+    //        NextState = nextState;
+    //        Done = done;
+    //    }
+    //}
 }
 

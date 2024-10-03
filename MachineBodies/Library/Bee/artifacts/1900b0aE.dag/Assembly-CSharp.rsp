@@ -373,10 +373,12 @@
 "Assets/Scripts/Dummy/ScoreCounterMinimumContact.cs"
 "Assets/Scripts/Dummy/SimceptionAction.cs"
 "Assets/Scripts/Dummy/SimpleReinstantiator.cs"
+"Assets/Scripts/Experience.cs"
 "Assets/Scripts/GeneticManager.cs"
 "Assets/Scripts/Layer.cs"
 "Assets/Scripts/NeuralNetwork.cs"
 "Assets/Scripts/NeuralNetwork_PPO.cs"
+"Assets/Scripts/PPOManager.cs"
 -langversion:9.0
 
 /deterministic

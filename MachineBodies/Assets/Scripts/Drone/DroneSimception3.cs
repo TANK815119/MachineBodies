@@ -94,4 +94,18 @@ public class DroneSimception3 : Simception
     {
         this.goalCreator = (DroneGoalCreator3)goalCreator;
     }
+    public override float[] GetLastInputs()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public override float CalculateLastReward()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public override int[] GetNetworkDimensions()
+    {
+        throw new System.NotImplementedException();
+    }
 }

@@ -19,6 +19,9 @@ public class DroneSimception2 : Simception
     private DroneGoalCreator goalCreator;
     private Vector3 goalPosition = Vector3.zero;
 
+    private float[] lastInputs;
+    private Vector3 lastPosition;
+
     public void Start()
     {
         inputs = new float[inputVolume];
@@ -40,6 +43,9 @@ public class DroneSimception2 : Simception
         float thrust = outputs[0];
 
         rb.AddForce(Vector3.up * thrust, ForceMode.Force);
+
+        lastInputs = inputs;
+        lastPosition = this.transform.position;
     }
 
     public override NeuralNetwork GetNeuralNetwork()
@@ -66,5 +72,22 @@ public class DroneSimception2 : Simception
     public override void SetGoalCreator(GoalCreator goalCreator)
     {
         this.goalCreator = (DroneGoalCreator)goalCreator;
+    }
+
+    public override float[] GetLastInputs()
+    {
+        return lastInputs;
+    }
+
+    public override float CalculateLastReward()
+    {
+        float prevDist = Mathf.Abs(goalPosition.y - lastPosition.y);
+        float currDist = Mathf.Abs(goalPosition.y - this.transform.position.y);
+        return prevDist - currDist; //will be positive if currDist is smaller than prevDist
+    }
+
+    public override int[] GetNetworkDimensions()
+    {
+        return new int[] { inputVolume, outputVolume, breadth, height };
     }
 }

@@ -15,4 +15,10 @@ public abstract class Simception : MonoBehaviour
     public abstract void MutateNeuralNetwork(float neuronChance, float standardDeviation);
 
     public abstract void SetGoalCreator(GoalCreator goalCreator);
+
+    public abstract float[] GetLastInputs();
+
+    public abstract float CalculateLastReward();
+
+    public abstract int[] GetNetworkDimensions();
 }
