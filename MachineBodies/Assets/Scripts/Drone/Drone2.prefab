@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 3535438031174599460}
   - component: {fileID: 7880012137348242671}
   - component: {fileID: 4790569878020601380}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Propellers
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -94,7 +94,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8001486810870098373}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: DroneMesh
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -128,7 +128,7 @@ GameObject:
   - component: {fileID: 4365749972058317322}
   - component: {fileID: 5030777520040802007}
   - component: {fileID: 2055457190647211908}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Legs
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -211,7 +211,7 @@ GameObject:
   - component: {fileID: 3993685365867757809}
   - component: {fileID: 4174152967570065515}
   - component: {fileID: 8272309989858659963}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: PropellerBase
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -296,7 +296,7 @@ GameObject:
   - component: {fileID: 6463522855341987217}
   - component: {fileID: 5405640184978491062}
   - component: {fileID: 6923409219960544782}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Camera
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -382,7 +382,7 @@ GameObject:
   - component: {fileID: 7597452571099423635}
   - component: {fileID: 4259596302980638690}
   - component: {fileID: 8707412990608628617}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Body
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -464,7 +464,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5995150003450292744}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Offset
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -503,7 +503,7 @@ GameObject:
   - component: {fileID: 736835960341255099}
   - component: {fileID: 3502996247552874801}
   - component: {fileID: 5491214776512145032}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Logo
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -632,12 +632,20 @@ PrefabInstance:
       value: Drone2
       objectReference: {fileID: 0}
     - target: {fileID: 4079589763712101540, guid: c7bea4229c1753a4bb0b3362ab946a3a, type: 3}
+      propertyPath: m_Layer
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 4079589763712101540, guid: c7bea4229c1753a4bb0b3362ab946a3a, type: 3}
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4417096978411761072, guid: c7bea4229c1753a4bb0b3362ab946a3a, type: 3}
       propertyPath: m_Enabled
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8615076941018850262, guid: c7bea4229c1753a4bb0b3362ab946a3a, type: 3}
+      propertyPath: m_Enabled
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 3817733306311868889, guid: c7bea4229c1753a4bb0b3362ab946a3a, type: 3}

@@ -773,7 +773,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!65 &1115597262
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -946,10 +946,12 @@ MonoBehaviour:
   creature: {fileID: 5282539683173208859, guid: 8d14f3119fb118e479867cacf0220051, type: 3}
   goalCreator: {fileID: 1118804111}
   creatureVolume: 1
-  creatureSpaceing: 5
-  simLengthMax: 3
-  simulationSpeed: 10
+  creatureSpaceing: 0.1
+  simLengthMax: 30
+  simulationSpeed: 30
   genText: {fileID: 11661170}
+  policyLearningRate: 0.01
+  valueLearningRate: 0.001
 --- !u!1001 &1942365011
 PrefabInstance:
   m_ObjectHideFlags: 0

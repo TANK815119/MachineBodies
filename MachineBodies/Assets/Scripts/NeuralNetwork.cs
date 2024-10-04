@@ -6,10 +6,10 @@ using System.IO;
 
 public class NeuralNetwork
 {
-    private int[] networkDimensions = {5, 32, 2}; //nodes per layer // first number is representative of simulation inputs, basically(make sure they match)
+    private int[] networkDimensions; //nodes per layer // first number is representative of simulation inputs, basically(make sure they match)
     private Layer[] layerArr;
 
-    public NeuralNetwork() : this(5, 2, 1, 32) { }// default: fills networkDimensions with {5, 32, 2}
+    //public NeuralNetwork() : this(5, 2, 1, 32) { }// default: fills networkDimensions with {5, 32, 2}
     public NeuralNetwork(int inputs, int outputs, int hiddenBreadth, int hiddenHeight)//migh want to add some parameters for neural newtwork size
     {
         networkDimensions = new int[hiddenBreadth + 2];
@@ -160,17 +160,30 @@ public class NeuralNetwork
     {
         float[] gradients = new float[this.ReadNeuralNetwork().Length]; // Holds all the gradients (for weights and biases)
 
+        for(int i = 0; i < gradients.Length; i++)
+        {
+            gradients[i] = 999f;
+        }
+
         // Initialize delta as the gradient of the loss with respect to the output (the last layer)
         float[] delta = policyLoss; // For the output layer, delta is just the loss gradient
 
         // Loop backwards through the layers
-        for (int i = layerArr.Length - 1; i > 0; i--) //removed = from >= to not go out of bounds
+        for (int i = layerArr.Length - 1; i >= 0; i--) //removed = from >= to not go out of bounds
         {
             Layer currentLayer = layerArr[i];
 
             //THESE TWO OPERATIONS ARE VERY ESPENSIVE, WILL LIKELY STORE THE OUTPUTS OF LAYERS IN THE FUTURE INSTEAD
             float[] layerOutput = RecalculateLayerOutput(stowedInputs, i); // Recalculate layer outputs
-            float[] layerInput = RecalculateLayerOutput(stowedInputs, i - 1); //recacluate layer inputs
+            float[] layerInput;
+            if (i > 0)
+            {
+                layerInput = RecalculateLayerOutput(stowedInputs, i - 1); //recacluate layer inputs
+            }
+            else
+            {
+                layerInput = stowedInputs;
+            }
 
             // Compute ReLU derivative for this layer's outputs
             float[] dReLU = new float[layerOutput.Length];
@@ -195,12 +208,16 @@ public class NeuralNetwork
                     // Gradients are stored by layerIndex * (numNodes*numInputs + numBiases) + numNode*numInputs + numInput to store weights in 1d
                     int weightIndex = GetWeightIndex(i, j, k);
                     gradients[weightIndex] = delta[j] * layerInput[k];
+                    //Debug.Log("Layer Index: " + i + " Node Index: " + j + " Weight Index: " + k + " Output: " + weightIndex);
+                    //Debug.Log(delta[j] + " delta assigned to " + weightIndex);
                 }
 
                 // Gradient for bias[j] is just delta[j]
                 // Gradients are stored by layerIndex * (numNodes*numInputs + numBiases) + numNodes*numInputs + numBias to store biases in 1d
                 int biasIndex = GetBiasIndex(i, j);
                 gradients[biasIndex] = delta[j];
+                //Debug.Log("Layer Index: " + i + " bias Index: " + j + " Output: " + biasIndex);
+                //Debug.Log(delta[j] + " delta assigned to " + biasIndex);
             }
 
             // If it's not the input layer, calculate the delta for the previous layer
@@ -219,6 +236,7 @@ public class NeuralNetwork
             }
         }
 
+        //Debug.Log("Finished one backprop");
         return gradients; // Return all the computed gradients
     }
 
@@ -258,41 +276,134 @@ public class NeuralNetwork
         return layerArr[layerIndex].nodeArray;
     }
 
-    private int GetWeightIndex(int layerIndex, int neuronIndex, int inputIndex)
+    private int GetWeightIndex(int layerIndex, int nodeIndex, int weightIndex)
     {
-        // Gradients were stored by layerIndex * (numNodes*numInputs + numBiases) + numNode*numInputs + numInput to store weights in 1d
-        // This code should account for the varying size of the input and output layers
-        int offset = 0;
+        //// Gradients were stored by layerIndex * (numNodes*numInputs + numBiases) + numNode*numInputs + numInput to store weights in 1d
+        ////this structure is essentially biases then weights but doesnt do it very well
+        //// This code should account for the varying size of the input and output layers
+        //int offset = 0;
 
-        // Accumulate offsets for previous layers' weights and biases
+        //// Accumulate offsets for previous layers' weights and biases
+        //for (int i = 0; i < layerIndex; i++)
+        //{
+        //    //offset += layerArr[i].weightsArray.GetLength(0) * layerArr[i].weightsArray.GetLength(1); // Weights
+        //    //offset += layerArr[i].biasesArray.Length; // Biases
+        //    offset += layerArr[i].weightsArray.GetLength(0) * layerArr[i].weightsArray.GetLength(1); // Only weights
+        //}
+
+        //// Add current layer weight index
+        //return offset + (neuronIndex * layerArr[layerIndex].weightsArray.GetLength(1)) + inputIndex;
+
+        //new Gradient location math
+        //will store all weights and then all biases for every layer
+        //remember, there is a consistent number of biases, but not a consistent number of weights
+        //there are no biases on the input, but there are first weights that connect them to the first hidden layer
+        //the output layer is shorter and does have biases
+        //so the math should start with weights and end with biases
+        //there will be an inconsistent number of first weights
+        //there will be an inconsistent number of last weights and last biases
+        //all others should be consistent
+        //each layer is composed of its inputs(weights) and then neurons(biases)
+        //the weights of each layer are categorized by (neuronIndex) * (weightsPerNeuron) + inputIndex
+
+        //int firstWeightsPerNode = layerArr[0].weightsArray.GetLength(1);
+        //int standardWeightsPerNode = layerArr[1].weightsArray.Length;
+        //int standardBiasCount = layerArr[0].biasesArray.Length; //interchangeable with layerArr[0].weightsArray.GetLength(0)
+
+        //if (layerIndex == 0) //first input and hidden layer 1
+        //{
+        //    return nodeIndex * firstWeightsPerNode + weightIndex;
+        //}
+        //else //hidden and final layers
+        //{
+        //    //the first input weights + standard neuron first layer + 
+        //    //then (layerIndex - 1) * weightsStandard * biasesStandard
+        //    //+ neuronIndex * layerArr[layerIndex].weightsArray.GetLength(1) + inputIndex
+        //    int firstLayer = firstWeightsPerNode * standardBiasCount + standardBiasCount;
+        //    int prevLayers = (layerIndex - 1) * standardWeightsPerNode * standardBiasCount + (layerIndex - 1) * standardBiasCount;
+        //    return firstLayer + prevLayers + nodeIndex * standardWeightsPerNode + weightIndex;
+        //}
+
+        int totalIndex = 0;
+
+        //count up all previous layers
         for (int i = 0; i < layerIndex; i++)
         {
-            offset += layerArr[i].weightsArray.GetLength(0) * layerArr[i].weightsArray.GetLength(1); // Weights
-            offset += layerArr[i].biasesArray.Length; // Biases
+            //Debug.Log("nodes" + layerArr[i].weightsArray.GetLength(0) + " * weights" + layerArr[i].weightsArray.GetLength(1) + " + bias" + layerArr[i].biasesArray.Length);
+            totalIndex += layerArr[i].weightsArray.GetLength(0) * layerArr[i].weightsArray.GetLength(1) + layerArr[i].biasesArray.Length;
         }
 
-        // Add current layer weight index
-        return offset + (neuronIndex * layerArr[layerIndex].weightsArray.GetLength(1)) + inputIndex;
+        //return the totalIndex + (nodeIndex * weightsPerNode) + (weightIndex + 1) so they dont overlap
+        int weightsPerNode = layerArr[layerIndex].weightsArray.GetLength(1);
+        //int index = totalIndex + nodeIndex * weightsPerNode + weightIndex;
+        //Debug.Log("Layer Index: " + layerIndex + " Node Index: " + nodeIndex + " Weight Index: " + weightIndex + " Output: " + index);
+        return totalIndex + nodeIndex * weightsPerNode + weightIndex;
     }
 
-    private int GetBiasIndex(int layerIndex, int neuronIndex)
+    private int GetBiasIndex(int layerIndex, int biasIndex)
     {
-        // Gradients were stored by layerIndex * (numNodes*numInputs + numBiases) + numNodes*numInputs + numBias to store biases in 1d
-        // This code should account for the varying size of the input and output layers
-        int offset = 0;
+        //// Gradients were stored by layerIndex * (numNodes*numInputs + numBiases) + numNodes*numInputs + numBias to store biases in 1d
+        //// This code should account for the varying size of the input and output layers
+        //int offset = 0;
 
-        // Accumulate offsets for previous layers' weights and biases
+        //// Accumulate offsets for previous layers' weights and biases
+        //for (int i = 0; i < layerIndex; i++)
+        //{
+        //    //offset += layerArr[i].weightsArray.GetLength(0) * layerArr[i].weightsArray.GetLength(1); // Weights
+        //    //offset += layerArr[i].biasesArray.Length; // Biases
+        //    offset += layerArr[i].weightsArray.GetLength(0) * layerArr[i].weightsArray.GetLength(1); // Only weights
+        //    offset += layerArr[i].biasesArray.Length; // Only biases
+        //}
+
+        //// Add current layer bias index
+        //return offset + neuronIndex;
+        ////return offset + (layerArr[layerIndex].weightsArray.GetLength(0) * layerArr[layerIndex].weightsArray.GetLength(1)) + neuronIndex;
+        ///
+
+        //int firstWeightsPerNode = layerArr[0].weightsArray.GetLength(1);
+        //int standardWeightsPerNode = layerArr[1].weightsArray.Length;
+        //int standardBiasCount = layerArr[0].biasesArray.Length; //interchangeable with layerArr[0].weightsArray.GetLength(0)
+        //int finalBiasCount = layerArr[layerArr.Length - 1].biasesArray.Length;
+
+        //if (layerIndex == 0) //first input and hidden layer 1
+        //{
+        //    return standardBiasCount * firstWeightsPerNode + (biasIndex + 1);
+        //}
+        //else if(layerIndex == layerArr.Length - 1) //final layer
+        //{
+        //    int firstLayer = firstWeightsPerNode * standardBiasCount + standardBiasCount;
+        //    int prevLayers = (layerIndex - 1) * standardWeightsPerNode * standardBiasCount + (layerIndex - 1) * standardBiasCount;
+        //    return firstLayer + prevLayers + finalBiasCount * standardWeightsPerNode + (biasIndex + 1);
+        //}
+        //else //hidden layers
+        //{
+        //    //the first input weights + standard neuron first layer + 
+        //    //then (layerIndex - 1) * weightsStandard * biasesStandard
+        //    //+ neuronIndex * layerArr[layerIndex].weightsArray.GetLength(1) + inputIndex
+        //    int firstLayer = firstWeightsPerNode * standardBiasCount + standardBiasCount;
+        //    int prevLayers = (layerIndex - 1) * standardWeightsPerNode * standardBiasCount + (layerIndex - 1) * standardBiasCount;
+        //    return firstLayer + prevLayers + standardBiasCount * standardWeightsPerNode + (biasIndex + 1);
+        //}
+
+        int totalIndex = 0;
+
+        //count up all previous layers
         for (int i = 0; i < layerIndex; i++)
         {
-            offset += layerArr[i].weightsArray.GetLength(0) * layerArr[i].weightsArray.GetLength(1); // Weights
-            offset += layerArr[i].biasesArray.Length; // Biases
+            totalIndex += layerArr[i].weightsArray.GetLength(0) * layerArr[i].weightsArray.GetLength(1) + layerArr[i].biasesArray.Length;
         }
 
-        // Add current layer bias index
-        return offset + (layerArr[layerIndex].weightsArray.GetLength(0) * layerArr[layerIndex].weightsArray.GetLength(1)) + neuronIndex;
+        //count the weights of this layer
+        totalIndex += layerArr[layerIndex].weightsArray.GetLength(0) * layerArr[layerIndex].weightsArray.GetLength(1);
+
+        //int index = totalIndex + biasIndex;
+        //Debug.Log("Layer Index: " + layerIndex + " bias Index: " + biasIndex + " Output: " + index);
+
+        //return the totalIndex + the (biasIndex) + 1 so they dont overlap
+        return totalIndex + biasIndex;
     }
 
-    private int CountParameters()
+    public int CountParameters()
     {
         // Count up the number of total weights and biases, hope this code isnt wrong
         int count = 0;

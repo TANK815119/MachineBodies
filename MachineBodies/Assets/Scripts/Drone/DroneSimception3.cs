@@ -23,6 +23,9 @@ public class DroneSimception3 : Simception
     [SerializeField] float maxThrust = 15f;
     [SerializeField] Transform[] props = new Transform[4];
 
+    private float[] lastInputs;
+    private Vector3 lastPosition;
+
     public void Start()
     {
         inputs = new float[inputVolume];
@@ -66,6 +69,9 @@ public class DroneSimception3 : Simception
             }
 
             rb.AddForceAtPosition(transform.up * thrust, props[i].position, ForceMode.Force);
+
+            lastInputs = inputs;
+            lastPosition = this.transform.position;
         }
     }
 
@@ -96,16 +102,18 @@ public class DroneSimception3 : Simception
     }
     public override float[] GetLastInputs()
     {
-        throw new System.NotImplementedException();
+        return lastInputs;
     }
 
     public override float CalculateLastReward()
     {
-        throw new System.NotImplementedException();
+        float prevDist = Vector3.Distance(goalPosition, lastPosition);
+        float currDist = Vector3.Distance(goalPosition, this.transform.position);
+        return prevDist - currDist; //will be positive if currDist is smaller than prevDist
     }
 
-    public override int[] GetNetworkDimensions()
+    public override int[] GetNetworkExtents()
     {
-        throw new System.NotImplementedException();
+        return new int[] { inputVolume, outputVolume, breadth, height };
     }
 }

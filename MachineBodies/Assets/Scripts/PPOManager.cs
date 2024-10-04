@@ -43,8 +43,9 @@ public class PPOManager : MonoBehaviour
             Debug.LogError("the creature has no simception");
         }
 
-        int[] netDimens = simception.GetNetworkDimensions();
-        neuralNetworkPPO = new NeuralNetwork_PPO(netDimens[0], netDimens[1], netDimens[2], netDimens[3]);
+        int[] netExtents = simception.GetNetworkExtents();
+        Debug.Log("Training with " + simception.GetType());
+        neuralNetworkPPO = new NeuralNetwork_PPO(netExtents[0], netExtents[1], netExtents[2], netExtents[3]);
         neuralNetworkPPO.InnitializeNeuralNetworksHe();
 
         experiences = new List<Experience>();
@@ -65,8 +66,10 @@ public class PPOManager : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
+        Time.timeScale = simulationSpeed;
+
         //collect collective experiences
-        for(int i = 0; i < simceptions.Length; i++)
+        for (int i = 0; i < simceptions.Length; i++)
         {
             if(simceptions[i] != null && simceptions[i].GetLastInputs() != null)
             {
@@ -159,16 +162,7 @@ public class PPOManager : MonoBehaviour
         //synchronize and activate the simception's inputs with the GoalCreator and deal with NeuralNetwork generation
         if (newCreature.TryGetComponent(out Simception simception))
         {
-            //if there are no Neural network, create new ones at random
-            if (newNeuralNetwork == null)
-            {
-                simception.GenerateRandomNeuralNetwork();
-            }
-            else //otherwise give creature a brain by copying the new one
-            {
-                //int NNIndex = Random.Range(0, bestNeuralNetworks.Length);
-                simception.SetNeuralNetwork(newNeuralNetwork.DeepCopyNeuralNetwork());
-            }
+            simception.SetNeuralNetwork(newNeuralNetwork);
 
             //useful call akin to Awake or Start in Monobehvior
             simception.SetGoalCreator(goalCreator);

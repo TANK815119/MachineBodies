@@ -5,10 +5,10 @@ using UnityEngine;
 //drone simception updated to work with the GoalCreator
 public class DroneSimception2 : Simception
 {
-    private int inputVolume = 3;
-    private int outputVolume = 1;
-    private int breadth = 3;
-    private int height = 5;
+    private const int inputVolume = 3;
+    private const int outputVolume = 1;
+    private const int breadth = 3; //was 3
+    private const int height = 5; // was 5
 
     private NeuralNetwork neuralNetwork;
 
@@ -42,14 +42,6 @@ public class DroneSimception2 : Simception
         outputs = neuralNetwork.ForwardPass(inputs);
         float thrust = outputs[0];
         //Debug.Log(thrust);
-
-        //float[] neuralNetArr = neuralNetwork.ReadNeuralNetwork();
-        //string str = "";
-        //for (int i = 0; i < neuralNetArr.Length; i++)
-        //{
-        //    str += neuralNetArr[i] + ", ";
-        //}
-        //Debug.Log(str);
 
         rb.AddForce(Vector3.up * thrust, ForceMode.Force);
 
@@ -95,7 +87,7 @@ public class DroneSimception2 : Simception
         return prevDist - currDist; //will be positive if currDist is smaller than prevDist
     }
 
-    public override int[] GetNetworkDimensions()
+    public override int[] GetNetworkExtents()
     {
         return new int[] { inputVolume, outputVolume, breadth, height };
     }

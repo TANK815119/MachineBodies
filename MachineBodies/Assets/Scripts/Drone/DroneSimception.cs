@@ -71,7 +71,7 @@ public class DroneSimception : Simception
     {
         throw new System.NotImplementedException();
     }
-    public override int[] GetNetworkDimensions()
+    public override int[] GetNetworkExtents()
     {
         throw new System.NotImplementedException();
     }

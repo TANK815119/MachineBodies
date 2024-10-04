@@ -20,5 +20,5 @@ public abstract class Simception : MonoBehaviour
 
     public abstract float CalculateLastReward();
 
-    public abstract int[] GetNetworkDimensions();
+    public abstract int[] GetNetworkExtents();
 }
