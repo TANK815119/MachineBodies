@@ -43,6 +43,7 @@ public class PPOManager : MonoBehaviour
             Debug.LogError("the creature has no simception");
         }
 
+        simception.Startup();
         int[] netExtents = simception.GetNetworkExtents();
         Debug.Log("Training with " + simception.GetType());
         neuralNetworkPPO = new NeuralNetwork_PPO(netExtents[0], netExtents[1], netExtents[2], netExtents[3]);

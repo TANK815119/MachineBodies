@@ -12,6 +12,7 @@ public class GeneticAlgorithm : MonoBehaviour
     [SerializeField] private float spawnHeight = 2f;
     [SerializeField] private TextMeshProUGUI genText;
     [SerializeField] private GameObject floor;
+    [SerializeField] private float timeSpeed = 1f;
 
     private float time = 0;
     private float cooldown = 0;
@@ -36,6 +37,8 @@ public class GeneticAlgorithm : MonoBehaviour
 
     public void FixedUpdate()
     {
+        Time.timeScale = timeSpeed;
+
         time += 1 * Time.fixedDeltaTime;
 
         if (resetable == true)

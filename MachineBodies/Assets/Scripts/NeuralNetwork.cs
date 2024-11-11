@@ -141,6 +141,13 @@ public class NeuralNetwork
                 thisLayer.biasesArray[neuroIndex] = 0f;  // Often initialized to 0 or small value
             }
         }
+        //double[] constCoefficients = { -1.328032, 0.3450068, 0.2178049, -0.07616708, -0.39105, -0.8946154, -0.5541302, -0.6842388, 0.5948431, -0.6567535, 0.1700459, 1.504941, 0.1147478, -1.0639, -0.9487465, 0.3276261, 0.2857761, 0.04824951, -1.773947, 0.2420805, -0.6662324, -0.4928881, 0.8133286, 0.4936297, 0.3945757, 0.6863497, -0.02181687, 0.1210485, -0.2117072, -0.9244639, -0.9834744, 0.02831673, -1.515262, 0.5972223, 0.1859123, -0.5204154, 0.2587827, 1.487662, -0.005826861, -0.8607997, -0.4539259, 0.4966782, -0.2782862, 0.8511897, 0.4708014, 0.9107162, 1.27138, 0.5028019, -0.114648, -0.120683, 0.9232644, 0.275372, 0.0490301, 1.056718, 0.1474769, -0.9564848, -0.3359877, -0.5811074, -0.4101139, -1.278794, -0.5759953, 0.7673454, 1.07981, 0.64053, -0.1156563, -0.8055712, 0.8532441, 0.1208906, -0.4816885, 0.1150411, -0.008410046, -0.02828152, 1.046244, -0.48818, -0.1345343, -0.1528954, 0.4185243, -1.528688, -0.5734174, 0.1243416, 0.9546558, -0.5805066, 0.9325264, 0.9521216, -1.476153, 0.3922449 } ;
+        //float[] floatCoefficients = new float[constCoefficients.Length];
+        //for(int i = 0; i < constCoefficients.Length; i++)
+        //{
+        //    floatCoefficients[i] = (float)constCoefficients[i];
+        //}
+        //this.WriteNeuralNetwork(floatCoefficients);
     }
 
     private static float RandomGauss(float mean, float standardDeviation)
@@ -463,7 +470,6 @@ public class NeuralNetwork
         }
     }
 
-    //nether save or load are implemented
     //will have to test very soon
     //I should probably test with a simple goal
     public void LoadNetworkState() //this should probably take a parameter like generation

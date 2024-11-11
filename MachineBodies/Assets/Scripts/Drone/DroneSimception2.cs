@@ -57,6 +57,8 @@ public class DroneSimception2 : Simception
     public override void SetNeuralNetwork(NeuralNetwork neuralNetwork)
     {
         this.neuralNetwork = neuralNetwork;
+        PrintNeuralNetwork();
+
     }
 
     public override void GenerateRandomNeuralNetwork()
@@ -90,5 +92,16 @@ public class DroneSimception2 : Simception
     public override int[] GetNetworkExtents()
     {
         return new int[] { inputVolume, outputVolume, breadth, height };
+    }
+
+    private void PrintNeuralNetwork()
+    {
+        string output = "";
+        float[] coefficients = neuralNetwork.ReadNeuralNetwork();
+        for (int i = 0; i < coefficients.Length; i++)
+        {
+            output += coefficients[i] + ", ";
+        }
+        Debug.Log(output);
     }
 }

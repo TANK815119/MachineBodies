@@ -186,6 +186,7 @@ public class GeneticManager : MonoBehaviour
             //if there are no best Neural networks, create new ones at random
             if (bestNeuralNetworks == null)
             {
+                simception.Startup();
                 simception.GenerateRandomNeuralNetwork();
             }
             else //otherwise give creature a brain by copying the most succesful of the previous generation
