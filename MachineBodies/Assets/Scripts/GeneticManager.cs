@@ -186,6 +186,7 @@ public class GeneticManager : MonoBehaviour
             //if there are no best Neural networks, create new ones at random
             if (bestNeuralNetworks == null)
             {
+                simception.SetGoalCreator(goalCreator);
                 simception.Startup();
                 simception.GenerateRandomNeuralNetwork();
             }

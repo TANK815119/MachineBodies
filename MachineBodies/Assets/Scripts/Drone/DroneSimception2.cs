@@ -41,7 +41,7 @@ public class DroneSimception2 : Simception
 
         outputs = neuralNetwork.ForwardPass(inputs);
         float thrust = outputs[0];
-        //Debug.Log(thrust);
+        Debug.Log(thrust);
 
         rb.AddForce(Vector3.up * thrust, ForceMode.Force);
 
@@ -102,6 +102,6 @@ public class DroneSimception2 : Simception
         {
             output += coefficients[i] + ", ";
         }
-        Debug.Log(output);
+        Debug.Log("Network Coefficients: " + output);
     }
 }

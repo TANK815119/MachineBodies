@@ -382,6 +382,8 @@
 "Assets/Scripts/NeuralNetwork.cs"
 "Assets/Scripts/NeuralNetwork_PPO.cs"
 "Assets/Scripts/PPOManager.cs"
+"Assets/Scripts/TestScripts/HeuristicManager.cs"
+"Assets/Scripts/TestScripts/NeuralNetwork_Heuristic.cs"
 -langversion:9.0
 
 /deterministic

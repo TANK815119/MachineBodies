@@ -43,6 +43,7 @@ public class PPOManager : MonoBehaviour
             Debug.LogError("the creature has no simception");
         }
 
+        simception.SetGoalCreator(goalCreator);
         simception.Startup();
         int[] netExtents = simception.GetNetworkExtents();
         Debug.Log("Training with " + simception.GetType());

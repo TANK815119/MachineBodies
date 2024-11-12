@@ -1,5 +1,5 @@
 sceneSetups:
-- path: Assets/Scenes/Ragdoll_1.unity
+- path: Assets/Scenes/Drone2_Backprop.unity
   isLoaded: 1
   isActive: 1
   isSubScene: 0
