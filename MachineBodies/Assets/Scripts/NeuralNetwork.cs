@@ -8,18 +8,20 @@ public class NeuralNetwork
 {
     private int[] networkDimensions; //nodes per layer // first number is representative of simulation inputs, basically(make sure they match)
     private Layer[] layerArr;
+    private bool isPolicy;
 
     //public NeuralNetwork() : this(5, 2, 1, 32) { }// default: fills networkDimensions with {5, 32, 2}
-    public NeuralNetwork(int inputs, int outputs, int hiddenBreadth, int hiddenHeight)//migh want to add some parameters for neural newtwork size
+
+    public NeuralNetwork(int inputs, int outputs, int hiddenBreadth, int hiddenHeight, bool policy)
     {
         networkDimensions = new int[hiddenBreadth + 2];
         for (int i = 0; i < hiddenBreadth + 2; i++) //breadth plus 2 for input and output
         {
-            if(i == 0)
+            if (i == 0)
             {
                 networkDimensions[i] = inputs;
             }
-            else if(i == networkDimensions.Length - 1)
+            else if (i == networkDimensions.Length - 1)
             {
                 networkDimensions[i] = outputs;
             }
@@ -28,9 +30,17 @@ public class NeuralNetwork
                 networkDimensions[i] = hiddenHeight;
             }
         }
+
+        isPolicy = policy;
+
         //Debug.Log("Input: " + inputs + ", Output: " + outputs);
         Awake();
     }
+
+    public NeuralNetwork(int inputs, int outputs, int hiddenBreadth, int hiddenHeight) : this(inputs, outputs, hiddenBreadth, hiddenHeight, false)
+    {
+    }
+    
     public NeuralNetwork(int[] networkDimensions, Layer[] layerArr)
     {
         this.networkDimensions = networkDimensions;
@@ -60,6 +70,10 @@ public class NeuralNetwork
             else if(i == layerArr.Length - 1) //final layer
             {
                 layerArr[i].Forward(layerArr[i - 1].nodeArray);
+                if(isPolicy)
+                {
+                    layerArr[i].ActivationTanh();
+                }
                 //layerArr[i].Activation(); //activation, actually. I cant handle negatives -- REMOVED FINAL ACTIVATION
             }
             else //hidden layers(default)
@@ -192,18 +206,29 @@ public class NeuralNetwork
                 layerInput = stowedInputs;
             }
 
-            // Compute ReLU derivative for this layer's outputs
-            float[] dReLU = new float[layerOutput.Length];
+            // Compute derivative for this layer's outputs
+            float[] derrivatives = new float[layerOutput.Length];
             for (int j = 0; j < layerOutput.Length; j++)
             {
-                // leaky ReLU derivative: 1 if output > 0, 0.001f otherwise
-                dReLU[j] = layerOutput[j] > 0 ? 1f : 0.001f;
+                if (!isPolicy || i != layerArr.Length - 1)
+                {
+                    // leaky ReLU derivative: 1 if output > 0, 0.001f otherwise
+                    derrivatives[j] = layerOutput[j] > 0 ? 1f : 0.001f;
+                }
+                else
+                {
+                    //Tanh function derrivative
+                    float tanHValue = (float)Math.Tanh(layerOutput[j]); //activation(Tanh)
+                    derrivatives[j] = 1f - tanHValue * tanHValue;  //derrivative(Tanh)
+                }
             }
+            
+            
 
             // Multiply delta by the ReLU derivative (element-wise)
             for (int j = 0; j < delta.Length; j++)
             {
-                delta[j] *= dReLU[j];
+                delta[j] *= derrivatives[j];
             }
 
             // Backpropagate gradients to weights and biases for this layer

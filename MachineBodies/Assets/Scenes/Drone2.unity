@@ -905,10 +905,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   creature: {fileID: 5282539683173208859, guid: 8d14f3119fb118e479867cacf0220051, type: 3}
   goalCreator: {fileID: 1118804111}
-  creatureVolume: 100
+  creatureVolume: 30
   creatureSpaceing: 1
-  simLengthMax: 30
-  simulationSpeed: 30
+  simLengthMax: 5
+  simulationSpeed: 1
   genText: {fileID: 11661170}
   reproducingCreatures: 30
   globalMutationChance: 50
@@ -924,7 +924,7 @@ Transform:
   m_GameObject: {fileID: 1118804110}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -40, y: 1, z: 0}
+  m_LocalPosition: {x: -15, y: 1, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []

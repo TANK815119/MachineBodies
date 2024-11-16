@@ -5,7 +5,7 @@ using UnityEngine;
 //drone simception updated to work with the GoalCreator
 public class DroneSimception2 : Simception
 {
-    private const int inputVolume = 3;
+    private const int inputVolume = 3; // WAS 3
     private const int outputVolume = 1;
     private const int breadth = 3; //was 3
     private const int height = 5; // was 5
@@ -40,7 +40,7 @@ public class DroneSimception2 : Simception
         inputs[2] = goalPosition.y;
 
         outputs = neuralNetwork.ForwardPass(inputs);
-        float thrust = outputs[0];
+        float thrust = outputs[0] * 50f;
         Debug.Log(thrust);
 
         rb.AddForce(Vector3.up * thrust, ForceMode.Force);
@@ -63,8 +63,9 @@ public class DroneSimception2 : Simception
 
     public override void GenerateRandomNeuralNetwork()
     {
-        neuralNetwork = new NeuralNetwork(inputVolume, outputVolume, breadth, height);
-        MutateNeuralNetwork(100f, 0.5f);
+        neuralNetwork = new NeuralNetwork(inputVolume, outputVolume, breadth, height, true);
+        neuralNetwork.InitializeWeightsHe();
+        //MutateNeuralNetwork(100f, 0.5f);
     }
 
     public override void MutateNeuralNetwork(float neuronChance, float standardDeviation)

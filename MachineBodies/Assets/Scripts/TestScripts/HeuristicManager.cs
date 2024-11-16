@@ -22,6 +22,7 @@ public class HeuristicManager : MonoBehaviour
     private Simception[] simceptions;
     private NeuralNetwork_Heuristic neuralNetworkHeuristic;
     [SerializeField] private float policyLearningRate = 0.003f;
+    [SerializeField] private float policyClipRange = 0.2f;
 
     private GameObject[] creatures;
 
@@ -100,6 +101,7 @@ public class HeuristicManager : MonoBehaviour
 
         //set learning rates
         neuralNetworkHeuristic.SetLearningRates(policyLearningRate);
+        neuralNetworkHeuristic.SetClipRange(policyClipRange);
 
         //get rid of the previous generation of creatures after copying the best
         CullPreviousCreatures();

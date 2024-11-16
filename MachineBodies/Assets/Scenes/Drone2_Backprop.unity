@@ -979,7 +979,7 @@ GameObject:
   - component: {fileID: 1118804114}
   - component: {fileID: 1118804115}
   m_Layer: 0
-  m_Name: PPOManager
+  m_Name: HeuristicManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1077,7 +1077,8 @@ MonoBehaviour:
   simLengthMax: 15
   simulationSpeed: 7.5
   genText: {fileID: 11661170}
-  policyLearningRate: 0.001
+  policyLearningRate: 0
+  policyClipRange: 0.2
 --- !u!1001 &1942365011
 PrefabInstance:
   m_ObjectHideFlags: 0

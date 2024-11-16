@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System;
 using UnityEngine;
 
 public class Layer
@@ -46,6 +47,14 @@ public class Layer
             {
                 nodeArray[i] = 0.001f;
             }
+        }
+    }
+
+    public void ActivationTanh() // tanh activation used for final mechanical policy layer
+    {
+        for (int i = 0; i < numNodes; i++)
+        {
+            nodeArray[i] = (float)Math.Tanh(nodeArray[i]); // Math.Tanh is built into C#
         }
     }
 }

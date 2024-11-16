@@ -6,13 +6,16 @@ public class NeuralNetwork_Heuristic
 {
     private NeuralNetwork policyNetwork;
     private float policyLearningRate;
+    private float clipRange;
+
 
     public NeuralNetwork_Heuristic(int inputSize, int outputSize, int hiddenBreadth, int hiddenHeight)
     {
-        policyNetwork = new NeuralNetwork(inputSize, outputSize, hiddenBreadth, hiddenHeight);
+        policyNetwork = new NeuralNetwork(inputSize, outputSize, hiddenBreadth, hiddenHeight, true);
 
         policyLearningRate = 0.001f;
-    }
+        clipRange = 0.2f;
+}
 
     public void Train(List<Experience> experiences)
     {
@@ -31,11 +34,11 @@ public class NeuralNetwork_Heuristic
             float predictedPolicy = policyNetwork.ForwardPass(experiences[i].State)[0];
 
             // Compute the discounted actual reward
-            float actualPolicy = BespokePolicy(experiences); //THIS IS WHERE CUSTOM CODE GOES
+            float actualPolicy = BespokePolicy(experiences[i]); //THIS IS WHERE CUSTOM CODE GOES
 
             //calculate the instanteneous loss function
             float gain = predictedPolicy - actualPolicy;
-            //float lossFunction = Mathf.Pow(gain, 2f);
+            //float lossFunction = 0.5f * Mathf.Pow(gain, 2f);
             //totalLoss += lossFunction;
 
             //compute the instantenuos gradient change to each weight and bias using backpropogation and add to total gradients
@@ -56,16 +59,24 @@ public class NeuralNetwork_Heuristic
         float[] valueNetworkParameters = policyNetwork.ReadNeuralNetwork();
         for (int i = 0; i < totalGradients.Length; i++)
         {
+            //clip the gradient
+            totalGradients[i] = Mathf.Clamp(totalGradients[i], -clipRange, clipRange); // Symmetrical clipping
             valueNetworkParameters[i] -= policyLearningRate * totalGradients[i];
         }
 
         policyNetwork.WriteNeuralNetwork(valueNetworkParameters);
     }
 
-    private float BespokePolicy(List<Experience> experiences)
+    private float BespokePolicy(Experience experience)
     {
         //should return the proper thrust
-        return 10f;
+        return 0.2f;
+
+        //float droneHeight = experience.State[0];
+        //float droneVelocity = experience.State[1];
+        //float droneGoal = experience.State[2];
+
+        //if()
     }
 
     public void InnitializeNeuralNetworksHe()
@@ -76,6 +87,11 @@ public class NeuralNetwork_Heuristic
     public void SetLearningRates(float policy) // reccomended 0.001f
     {
         policyLearningRate = policy;
+    }
+
+    public void SetClipRange(float range) // reccomended 0.001f
+    {
+        clipRange = range;
     }
 
     public void SetPolicyNetwork(NeuralNetwork neuralNetwork)

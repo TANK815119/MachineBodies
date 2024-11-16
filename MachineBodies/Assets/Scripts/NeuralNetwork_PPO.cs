@@ -15,8 +15,8 @@ public class NeuralNetwork_PPO
     // Initialization and PPO-specific methods
     public NeuralNetwork_PPO(int inputSize, int outputSize, int hiddenBreadth, int hiddenHeight)
     {
-        policyNetwork = new NeuralNetwork(inputSize, outputSize, hiddenBreadth, hiddenHeight);
-        valueNetwork = new NeuralNetwork(inputSize, 1, hiddenBreadth, hiddenHeight); //could have different dimensions
+        policyNetwork = new NeuralNetwork(inputSize, outputSize, hiddenBreadth, hiddenHeight, true);
+        valueNetwork = new NeuralNetwork(inputSize, 1, hiddenBreadth, hiddenHeight, false); //could have different dimensions
                                                                                    // Set default values for hyperparameters
         policyLearningRate = 0.001f;
         valueLearningRate = 0.0001f;
