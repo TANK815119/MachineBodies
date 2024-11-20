@@ -70,13 +70,17 @@ public class NeuralNetwork_Heuristic
     private float BespokePolicy(Experience experience)
     {
         //should return the proper thrust
-        return 0.2f;
+        //return 0.2f;
+        //0.1962 * 50 = 9.81
 
-        //float droneHeight = experience.State[0];
-        //float droneVelocity = experience.State[1];
-        //float droneGoal = experience.State[2];
+        //extract drone state from experience
+        float droneHeight = experience.State[0];
+        float droneVelocity = experience.State[1];
+        float goalHeight = experience.State[2];
 
-        //if()
+        float bespokeOutput = 0.1962f + 0.2f * (goalHeight - droneHeight);
+
+        return Mathf.Clamp(bespokeOutput, -1f, 1f);
     }
 
     public void InnitializeNeuralNetworksHe()

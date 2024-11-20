@@ -41,7 +41,11 @@ public class DroneSimception2 : Simception
 
         outputs = neuralNetwork.ForwardPass(inputs);
         float thrust = outputs[0] * 50f;
-        Debug.Log(thrust);
+
+        if(Random.Range(0, 99) == 0)
+        {
+            Debug.Log(thrust);
+        }
 
         rb.AddForce(Vector3.up * thrust, ForceMode.Force);
 

@@ -11,6 +11,7 @@ public class NeuralNetwork_PPO
     private float policyLearningRate;
     private float valueLearningRate;
     private float clipRange;
+    private const float DiscountFactor = 0.95f;
 
     // Initialization and PPO-specific methods
     public NeuralNetwork_PPO(int inputSize, int outputSize, int hiddenBreadth, int hiddenHeight)
@@ -26,7 +27,7 @@ public class NeuralNetwork_PPO
     public void Train(List<Experience> experiences)
     {
         List<float> advantages = CalculateAdvantages(experiences);
-        UpdatePolicyNeuralNetwork(experiences, advantages);
+        UpdatePolicyNeuralNetwork2(experiences, advantages);
         UpdateValueNeuralNetwork(experiences);
     }
 
@@ -96,6 +97,8 @@ public class NeuralNetwork_PPO
             Debug.Log(str0a);
         }
 
+
+
         // Average the gradients
         for (int i = 0; i < totalGradients.Length; i++)
         {
@@ -134,11 +137,55 @@ public class NeuralNetwork_PPO
         policyNetwork.WriteNeuralNetwork(policyNetworkParameters);
     }
 
+    private void UpdatePolicyNeuralNetwork2(List<Experience> experiences, List<float> advantages)
+    {
+        // Compares Neural network behavior to its associated predicted value and uses backpropogation to update for the most effective network
+        float[] totalGradients = new float[policyNetwork.ReadNeuralNetwork().Length]; //an array that can hold the gradients of all weights and biases from backpropagation
+
+        // loop through the experiences to find the error between predicted and actual reward
+        for (int i = 0; i < experiences.Count; i++)
+        {
+            //find the network's output
+            float[] predictedPolicy = policyNetwork.ForwardPass(experiences[i].State);
+
+            float[] policyLoss = new float[predictedPolicy.Length];
+            for (int j = 0; j < policyLoss.Length; j++)
+            {
+                policyLoss[j] = -Mathf.Log(predictedPolicy[j]) * advantages[i];
+                //predictedGain[j] = predictedPolicy[j] + valueNetwork.ForwardPass(experiences[i].State)[0] * Mathf.Abs(RandomGauss(0f, 0.01f)); //update in direction of good with random magnitude
+                Debug.Log(policyLoss[j]);
+            }
+
+            //compute the instantenuos gradient change to each weight and bias using backpropogation and add to total gradients
+            float[] instantGradients = policyNetwork.BackPropogate(policyLoss, experiences[i].State);
+            for (int j = 0; j < totalGradients.Length; j++)
+            {
+                totalGradients[j] += instantGradients[j];
+            }
+        }
+
+        //average the gradients
+        for (int i = 0; i < totalGradients.Length; i++)
+        {
+            totalGradients[i] /= experiences.Count;
+        }
+
+        //update the value network parameters
+        float[] policyNetworkParameters = policyNetwork.ReadNeuralNetwork();
+        for (int i = 0; i < totalGradients.Length; i++)
+        {
+            //clip the gradient
+            totalGradients[i] = Mathf.Clamp(totalGradients[i], -clipRange, clipRange); // Symmetrical clipping
+            policyNetworkParameters[i] -= policyLearningRate * totalGradients[i];
+        }
+
+        policyNetwork.WriteNeuralNetwork(policyNetworkParameters);
+    }
+
     private void UpdateValueNeuralNetwork(List<Experience> experiences)
     {
         // Compute value loss and update value network
-        float discountFactor = 0.99f;
-        //float totalLoss = 0f; -- USE THE TOTALLOSS HERE IN THE FUTURE TO RECORD PROGRESS
+        float totalLoss = 0f; //used to record progress in the minimization of "loss"
         float[] totalGradients = new float[valueNetwork.ReadNeuralNetwork().Length]; //an array that can hold the gradients of all weights and biases from backpropagation
 
         // loop through the experiences to find the error between predicted and actual reward
@@ -153,16 +200,18 @@ public class NeuralNetwork_PPO
             for (int j = i; j < experiences.Count; j++)
             {
                 actualValue += experiences[j].Reward * discount;
-                discount *= discountFactor;
+                discount *= DiscountFactor;
             }
 
             //calculate the instanteneous loss function
             float gain = predictedValue - actualValue;
-            float lossFunction = Mathf.Pow(gain, 2f);
-            //totalLoss += lossFunction;
+
+            //stow the loss function for reporting of network accuracy
+            float lossFunction = Mathf.Pow(gain, 2f); //not used beyond reporting
+            totalLoss += lossFunction;
 
             //compute the instantenuos gradient change to each weight and bias using backpropogation and add to total gradients
-            float[] instantGradients = valueNetwork.BackPropogate(new float[] { lossFunction }, experiences[i].State);
+            float[] instantGradients = valueNetwork.BackPropogate(new float[] { gain }, experiences[i].State);
             for(int j = 0; j < totalGradients.Length; j++)
             {
                 totalGradients[j] += instantGradients[j];
@@ -179,17 +228,15 @@ public class NeuralNetwork_PPO
         float[] valueNetworkParameters = valueNetwork.ReadNeuralNetwork();
         for(int  i = 0; i < totalGradients.Length; i++)
         {
+            //clip gradients
+            totalGradients[i] = Mathf.Clamp(totalGradients[i], -clipRange, clipRange); // Symmetrical clipping
             valueNetworkParameters[i] -= valueLearningRate * totalGradients[i];
         }
 
         valueNetwork.WriteNeuralNetwork(valueNetworkParameters);
 
-        //string str3 = "Writing Value Network: ";
-        //for (int i = 0; i < valueNetworkParameters.Length; i++)
-        //{
-        //    str3 += valueNetworkParameters[i] + ", ";
-        //}
-        //Debug.Log(str3);
+        //report network prediction effectiveness
+        Debug.Log("Value Network Loss:" + totalLoss);
     }
 
     private List<float> CalculateAdvantages(List<Experience> experiences)
@@ -246,23 +293,17 @@ public class NeuralNetwork_PPO
         valueLearningRate = value;
     }
 
-    //[Serializable]
-    //public class Experience
-    //{
-    //    public float[] State { get; private set; }
-    //    public float[] Action { get; private set; }
-    //    public float Reward { get; private set; }
-    //    public float[] NextState { get; private set; }
-    //    public bool Done { get; private set; }
+    private static float RandomGauss(float mean, float standardDeviation)
+    {
+        // Generate two uniform random numbers between 0 and 1
+        float u1 = UnityEngine.Random.value;
+        float u2 = UnityEngine.Random.value;
 
-    //    public Experience(float[] state, float[] action, float reward, float[] nextState, bool done)
-    //    {
-    //        State = state;
-    //        Action = action;
-    //        Reward = reward;
-    //        NextState = nextState;
-    //        Done = done;
-    //    }
-    //}
+        // Apply the Box-Muller transform
+        float randStdNormal = Mathf.Sqrt(-2.0f * Mathf.Log(u1)) * Mathf.Sin(2.0f * Mathf.PI * u2);
+
+        // Scale to the desired mean and standard deviation
+        return Mathf.Abs(mean + standardDeviation * randStdNormal);
+    }
 }
 

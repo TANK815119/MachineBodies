@@ -974,9 +974,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1118804113}
-  - component: {fileID: 1118804112}
   - component: {fileID: 1118804111}
-  - component: {fileID: 1118804114}
   - component: {fileID: 1118804115}
   m_Layer: 0
   m_Name: HeuristicManager
@@ -998,30 +996,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   goalMarker: {fileID: 345151618}
---- !u!114 &1118804112
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1118804110}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 46cf824fab1bf0e42a4030e8604ac97b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  creature: {fileID: 5282539683173208859, guid: 8d14f3119fb118e479867cacf0220051, type: 3}
-  goalCreator: {fileID: 1118804111}
-  creatureVolume: 100
-  creatureSpaceing: 1
-  simLengthMax: 30
-  simulationSpeed: 30
-  genText: {fileID: 11661170}
-  reproducingCreatures: 30
-  globalMutationChance: 50
-  neuronMutationChance: 30
-  mutationMagnitude: 0.1
-  reproductionSuccesBias: 3
 --- !u!4 &1118804113
 Transform:
   m_ObjectHideFlags: 0
@@ -1037,27 +1011,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1118804114
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1118804110}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: afb8895fc005a9b4faf404ee1ea79167, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  creature: {fileID: 5282539683173208859, guid: 8d14f3119fb118e479867cacf0220051, type: 3}
-  goalCreator: {fileID: 1118804111}
-  creatureVolume: 1
-  creatureSpaceing: 0.1
-  simLengthMax: 30
-  simulationSpeed: 1
-  genText: {fileID: 11661170}
-  policyLearningRate: 0.01
-  valueLearningRate: 0.001
 --- !u!114 &1118804115
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1075,9 +1028,9 @@ MonoBehaviour:
   creatureVolume: 1
   creatureSpaceing: 0.1
   simLengthMax: 15
-  simulationSpeed: 7.5
+  simulationSpeed: 15
   genText: {fileID: 11661170}
-  policyLearningRate: 0
+  policyLearningRate: 0.01
   policyClipRange: 0.2
 --- !u!1001 &1942365011
 PrefabInstance:
