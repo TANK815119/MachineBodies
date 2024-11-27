@@ -50,11 +50,18 @@ public class Layer
         }
     }
 
-    public void ActivationTanh() // tanh activation used for final mechanical policy layer
+    public void ActivationPPO() // tanh activation used for final mechanical policy layer & softmax for the 2nd half of nodes
     {
         for (int i = 0; i < numNodes; i++)
         {
-            nodeArray[i] = (float)Math.Tanh(nodeArray[i]); // Math.Tanh is built into C#
+            if(i < numNodes / 2) //first half tanh activated
+            {
+                nodeArray[i] = (float)Math.Tanh(nodeArray[i]); // Math.Tanh is built into C# for mean
+            }
+            else
+            {
+                nodeArray[i] = (float)Math.Exp(nodeArray[i]); // Math.Exp is built into C# for SD
+            }
         }
     }
 }

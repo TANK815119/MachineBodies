@@ -178,6 +178,11 @@ public class Simception_Ragdoll_1 : Simception
 
     }
 
+    public override void SetOldNeuralNetwork(NeuralNetwork neuralNetwork)
+    {
+        throw new System.NotImplementedException();
+    }
+
     public override void GenerateRandomNeuralNetwork()
     {
         neuralNetwork = new NeuralNetwork(inputVolume, outputVolume, breadth, height);
@@ -197,6 +202,11 @@ public class Simception_Ragdoll_1 : Simception
     public override float[] GetLastInputs()
     {
         return lastInputs;
+    }
+
+    public override Experience GetLastExperience()
+    {
+        throw new System.NotImplementedException();
     }
 
     public override float CalculateLastReward()

@@ -42,7 +42,7 @@ public class NeuralNetwork_Heuristic
             //totalLoss += lossFunction;
 
             //compute the instantenuos gradient change to each weight and bias using backpropogation and add to total gradients
-            float[] instantGradients = policyNetwork.BackPropogate(new float[] { gain }, experiences[i].State);
+            float[] instantGradients = policyNetwork.BackPropogate(new float[] { gain, 0f }, experiences[i].State);
             for (int j = 0; j < totalGradients.Length; j++)
             {
                 totalGradients[j] += instantGradients[j];

@@ -22,6 +22,7 @@ public class PPOManager : MonoBehaviour
     private List<Experience> experiences;
     private Simception[] simceptions;
     private NeuralNetwork_PPO neuralNetworkPPO;
+    private NeuralNetwork oldPolicyNetwork;
     [SerializeField] private float policyLearningRate = 0.003f;
     [SerializeField] private float valueLearningRate = 0.0003f;
 
@@ -62,6 +63,7 @@ public class PPOManager : MonoBehaviour
             goalCreator.GenerateGoal();
         }
 
+        oldPolicyNetwork = neuralNetworkPPO.GetPolicyNeuralNetwork();
         creatures = RepopulateCreatures(neuralNetworkPPO.GetPolicyNeuralNetwork());
     }
 
@@ -75,7 +77,7 @@ public class PPOManager : MonoBehaviour
         {
             if(simceptions[i] != null && simceptions[i].GetLastInputs() != null)
             {
-                Experience newExperience = new Experience(simceptions[i].GetLastInputs(), simceptions[i].CalculateLastReward());
+                Experience newExperience = simceptions[i].GetLastExperience();
                 experiences.Add(newExperience);
             }
         }
@@ -96,6 +98,9 @@ public class PPOManager : MonoBehaviour
 
     private void AdvanceGeneration()
     {
+        //stow the old network
+        oldPolicyNetwork = neuralNetworkPPO.GetPolicyNeuralNetwork();
+
         //train the neural network on all the collected data
         neuralNetworkPPO.Train(experiences);
         NeuralNetwork newPolicyNetwork = neuralNetworkPPO.GetPolicyNeuralNetwork();
@@ -165,6 +170,7 @@ public class PPOManager : MonoBehaviour
         if (newCreature.TryGetComponent(out Simception simception))
         {
             simception.SetNeuralNetwork(newNeuralNetwork);
+            simception.SetOldNeuralNetwork(oldPolicyNetwork);
 
             //useful call akin to Awake or Start in Monobehvior
             simception.SetGoalCreator(goalCreator);

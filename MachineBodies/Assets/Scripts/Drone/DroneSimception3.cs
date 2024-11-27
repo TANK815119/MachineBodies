@@ -85,6 +85,11 @@ public class DroneSimception3 : Simception
         this.neuralNetwork = neuralNetwork;
     }
 
+    public override void SetOldNeuralNetwork(NeuralNetwork neuralNetwork)
+    {
+        throw new System.NotImplementedException();
+    }
+
     public override void GenerateRandomNeuralNetwork()
     {
         neuralNetwork = new NeuralNetwork(inputVolume, outputVolume, breadth, height);
@@ -103,6 +108,11 @@ public class DroneSimception3 : Simception
     public override float[] GetLastInputs()
     {
         return lastInputs;
+    }
+
+    public override Experience GetLastExperience()
+    {
+        throw new System.NotImplementedException();
     }
 
     public override float CalculateLastReward()

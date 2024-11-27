@@ -72,7 +72,7 @@ public class NeuralNetwork
                 layerArr[i].Forward(layerArr[i - 1].nodeArray);
                 if(isPolicy)
                 {
-                    layerArr[i].ActivationTanh();
+                    layerArr[i].ActivationPPO();
                 }
                 //layerArr[i].Activation(); //activation, actually. I cant handle negatives -- REMOVED FINAL ACTIVATION
             }
@@ -217,9 +217,17 @@ public class NeuralNetwork
                 }
                 else
                 {
-                    //Tanh function derrivative
-                    float tanHValue = (float)Math.Tanh(layerOutput[j]); //activation(Tanh)
-                    derrivatives[j] = 1f - tanHValue * tanHValue;  //derrivative(Tanh)
+                    if(j < layerArr.Length / 2)
+                    {
+                        //Tanh function derrivative
+                        float tanHValue = (float)Math.Tanh(layerOutput[j]); //activation(Tanh)
+                        derrivatives[j] = 1f - tanHValue * tanHValue;  //derrivative(Tanh)
+                    }
+                    else
+                    {
+                        //Exponentuial function derrivative
+                        derrivatives[j] = (float)Math.Exp(layerOutput[j]); // derrivative for exponential is same as activation
+                    }
                 }
             }
             
@@ -239,8 +247,13 @@ public class NeuralNetwork
                     // Gradient for weight[j, k] is delta[j] * input to that neuron
                     // Gradients are stored by layerIndex * (numNodes*numInputs + numBiases) + numNode*numInputs + numInput to store weights in 1d
                     int weightIndex = GetWeightIndex(i, j, k);
-                    gradients[weightIndex] = delta[j] * layerInput[k];
                     //Debug.Log("Layer Index: " + i + " Node Index: " + j + " Weight Index: " + k + " Output: " + weightIndex);
+                    //Debug.Log(delta.Length);
+                    //float currDelta = delta[j];
+                    //float currLayerOutput = layerInput[k];
+                    //float currGradient = currDelta * currLayerOutput;
+                    //gradients[weightIndex] = currGradient;
+                    gradients[weightIndex] = delta[j] * layerInput[k];
                     //Debug.Log(delta[j] + " delta assigned to " + weightIndex);
                 }
 

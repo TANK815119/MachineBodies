@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
@@ -145,19 +145,57 @@ public class NeuralNetwork_PPO
         // loop through the experiences to find the error between predicted and actual reward
         for (int i = 0; i < experiences.Count; i++)
         {
-            //find the network's output
-            float[] predictedPolicy = policyNetwork.ForwardPass(experiences[i].State);
+            // Get the action taken from the experience(assumed to be a continuous action)
+            float[] action = experiences[i].Action;
+            float[] oldAction = experiences[i].OldAction;
 
-            float[] policyLoss = new float[predictedPolicy.Length];
-            for (int j = 0; j < policyLoss.Length; j++)
+            // Calculate the probability of the taken actions under the current policy
+            float[] policyOutput = experiences[i].Output; //policyNetwork.ForwardPass(experiences[i].State);
+            float[] oldPolicyOutput = experiences[i].OldOutput;
+
+            // Calculate the policy loss gradients
+            float[] policyLossGradients = new float[policyOutput.Length];
+            for (int j = 0; j < policyOutput.Length / 2; j++)
             {
-                policyLoss[j] = -Mathf.Log(predictedPolicy[j]) * advantages[i];
-                //predictedGain[j] = predictedPolicy[j] + valueNetwork.ForwardPass(experiences[i].State)[0] * Mathf.Abs(RandomGauss(0f, 0.01f)); //update in direction of good with random magnitude
-                Debug.Log(policyLoss[j]);
+                // Extract mean and standard deviation for the current action
+                float mean = policyOutput[j];
+                float stdDev = policyOutput[j + policyOutput.Length / 2];
+                float oldMean = oldPolicyOutput[j];
+                float oldStdDev = oldPolicyOutput[j + policyOutput.Length / 2];
+
+                // Get the current log-probabilities from the policy network for the taken actions
+                float currentLogProb = CalculateLogProb(action[j], mean, stdDev);
+                float oldLogProb = CalculateLogProb(oldAction[j], oldMean, oldStdDev);
+
+                // Calculate the probability ratio r_t(θ)
+                float probRatio = Mathf.Exp(currentLogProb - oldLogProb);
+
+                // Compute the clipped objective
+                float unclippedLoss = probRatio * advantages[i];
+                float clippedLoss = Mathf.Clamp(probRatio, 1 - clipRange, 1 + clipRange) * advantages[i];
+
+                // Final policy loss (minimum of unclipped and clipped)
+                float policyLoss = Mathf.Min(unclippedLoss, clippedLoss);
+
+                // Gradient for the mean (µ)
+                float delta = action[j] - mean; // Difference between action and mean
+                float gradientMean = -policyLoss * (delta / (stdDev * stdDev));
+
+                // Gradient for the standard deviation (σ)
+                float gradientSigma = -policyLoss * ((delta * delta) / (stdDev * stdDev * stdDev) - 1 / stdDev);
+
+                // Store gradients for backpropagation
+                policyLossGradients[j] = gradientMean; // Gradient for mean
+                policyLossGradients[j + policyOutput.Length / 2] = gradientSigma; // Gradient for standard deviation
+
+                // Debug for verification
+                Debug.Log($"Policy Loss (Mean) Gradient for experience {i}, action {j}: {gradientMean}");
+                Debug.Log($"Policy Loss (Sigma) Gradient for experience {i}, action {j}: {gradientSigma}");
             }
 
-            //compute the instantenuos gradient change to each weight and bias using backpropogation and add to total gradients
-            float[] instantGradients = policyNetwork.BackPropogate(policyLoss, experiences[i].State);
+            // Backpropagate the gradients through the policy network
+            float[] instantGradients = policyNetwork.BackPropogate(policyLossGradients, experiences[i].State);
+
             for (int j = 0; j < totalGradients.Length; j++)
             {
                 totalGradients[j] += instantGradients[j];
@@ -180,6 +218,13 @@ public class NeuralNetwork_PPO
         }
 
         policyNetwork.WriteNeuralNetwork(policyNetworkParameters);
+    }
+
+    private float CalculateLogProb(float action, float mean, float stdDev)
+    {
+        // Calculate the log probability using the Gaussian distribution formula
+        float logProb = -0.5f * Mathf.Pow((action - mean) / stdDev, 2) - Mathf.Log(stdDev * Mathf.Sqrt(2f * Mathf.PI));
+        return logProb;
     }
 
     private void UpdateValueNeuralNetwork(List<Experience> experiences)

@@ -8,6 +8,8 @@ public abstract class Simception : MonoBehaviour
 
     public abstract void SetNeuralNetwork(NeuralNetwork neuralNetwork);
 
+    public abstract void SetOldNeuralNetwork(NeuralNetwork neuralNetwork);
+
     public abstract NeuralNetwork GetNeuralNetwork();
 
     public abstract void GenerateRandomNeuralNetwork();
@@ -17,6 +19,8 @@ public abstract class Simception : MonoBehaviour
     public abstract void SetGoalCreator(GoalCreator goalCreator);
 
     public abstract float[] GetLastInputs();
+
+    public abstract Experience GetLastExperience();
 
     public abstract float CalculateLastReward();
 
