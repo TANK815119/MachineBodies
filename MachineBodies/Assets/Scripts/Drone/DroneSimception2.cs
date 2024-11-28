@@ -45,15 +45,15 @@ public class DroneSimception2 : Simception
 
         //calculate old outputs and actiosn
         float[] oldOutputs = oldNeuralNetwork.ForwardPass(inputs);
-        float oldThrustMean = oldOutputs[0] * 50f;
-        float oldThrustSD = oldOutputs[1];
-        float oldThrust = RandomGauss(oldThrustMean, oldThrustSD);
+        float oldThrustMean = oldOutputs[0];
+        float oldThrustSD = 0.5f; // oldOutputs[1];
+        float oldThrust = RandomGauss(oldThrustMean, oldThrustSD) * 20f;
 
         //calculate novel outputs and actiosn
         float[] outputs = neuralNetwork.ForwardPass(inputs);
-        float thrustMean = outputs[0] * 50f;
-        float thrustSD = outputs[1];
-        float thrust = RandomGauss(thrustMean, thrustSD);
+        float thrustMean = outputs[0];
+        float thrustSD = 0.5f; // outputs[1];
+        float thrust = RandomGauss(thrustMean, thrustSD) * 20f;
 
         if(Random.Range(0, 99) == 0)
         {
@@ -64,9 +64,9 @@ public class DroneSimception2 : Simception
 
         lastInputs = inputs;
         lastOutputs = outputs;
-        lastActions = new float[] { thrust };
+        lastActions = new float[] { thrust / 20f };
         lastOldOutputs = oldOutputs;
-        lastOldActions = new float[] { oldThrust };
+        lastOldActions = new float[] { oldThrust / 20f };
         lastPosition = this.transform.position;
     }
 

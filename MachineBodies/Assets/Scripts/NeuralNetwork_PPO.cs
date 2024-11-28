@@ -143,6 +143,8 @@ public class NeuralNetwork_PPO
         float[] totalGradients = new float[policyNetwork.ReadNeuralNetwork().Length]; //an array that can hold the gradients of all weights and biases from backpropagation
 
         // loop through the experiences to find the error between predicted and actual reward
+        float failedGradients = 0f;
+        float failedGradientArrays = 0f;
         for (int i = 0; i < experiences.Count; i++)
         {
             // Get the action taken from the experience(assumed to be a continuous action)
@@ -159,48 +161,87 @@ public class NeuralNetwork_PPO
             {
                 // Extract mean and standard deviation for the current action
                 float mean = policyOutput[j];
-                float stdDev = policyOutput[j + policyOutput.Length / 2];
+                float stdDev = 0.5f; //Mathf.Max(policyOutput[j + policyOutput.Length / 2], 1e-6f);
                 float oldMean = oldPolicyOutput[j];
-                float oldStdDev = oldPolicyOutput[j + policyOutput.Length / 2];
+                float oldStdDev = 0.5f; //Mathf.Max(oldPolicyOutput[j + policyOutput.Length / 2], 1e-6f);
 
                 // Get the current log-probabilities from the policy network for the taken actions
                 float currentLogProb = CalculateLogProb(action[j], mean, stdDev);
                 float oldLogProb = CalculateLogProb(oldAction[j], oldMean, oldStdDev);
+                //Debug.Log("currentLogProb" + currentLogProb);
 
                 // Calculate the probability ratio r_t(θ)
                 float probRatio = Mathf.Exp(currentLogProb - oldLogProb);
+                //Debug.Log("probRatio" + probRatio);
 
-                // Compute the clipped objective
+                //Compute the clipped objective
                 float unclippedLoss = probRatio * advantages[i];
                 float clippedLoss = Mathf.Clamp(probRatio, 1 - clipRange, 1 + clipRange) * advantages[i];
+                //Debug.Log("clippedLoss" + clippedLoss);
 
                 // Final policy loss (minimum of unclipped and clipped)
                 float policyLoss = Mathf.Min(unclippedLoss, clippedLoss);
+                //Debug.Log("policyLoss" + policyLoss);
 
-                // Gradient for the mean (µ)
+                // Gradient for the mean (µ) & for the standard deviation (σ)
                 float delta = action[j] - mean; // Difference between action and mean
                 float gradientMean = -policyLoss * (delta / (stdDev * stdDev));
-
-                // Gradient for the standard deviation (σ)
                 float gradientSigma = -policyLoss * ((delta * delta) / (stdDev * stdDev * stdDev) - 1 / stdDev);
+
+                //Debug.Log("gradientMean" + gradientMean);
+                if (gradientMean.Equals(float.NaN) || gradientSigma.Equals(float.NaN))
+                {
+                    Debug.Log($"NaN Gradient for experience {i} with gradientMena({gradientMean}): mean({mean}) stdDev({stdDev}) action{action[j]}) oldMean({oldMean}) oldStdDev({oldStdDev}) oldAction{oldAction[j]})");
+                    failedGradients++;
+                    gradientMean = 0f;
+                    gradientSigma = 0f;
+                }
+                if(float.IsInfinity(gradientMean) || float.IsInfinity(gradientSigma))
+                {
+                    failedGradients++;
+                    Debug.Log($"Infinite Gradient for experience {i} with gradientMena({gradientMean}): mean({mean}) stdDev({stdDev}) action{action[j]}) oldMean({oldMean}) oldStdDev({oldStdDev}) oldAction{oldAction[j]}) advantages{advantages[i]}");
+                    gradientMean = 0f;
+                    gradientSigma = 0f;
+                }
 
                 // Store gradients for backpropagation
                 policyLossGradients[j] = gradientMean; // Gradient for mean
                 policyLossGradients[j + policyOutput.Length / 2] = gradientSigma; // Gradient for standard deviation
 
                 // Debug for verification
-                Debug.Log($"Policy Loss (Mean) Gradient for experience {i}, action {j}: {gradientMean}");
-                Debug.Log($"Policy Loss (Sigma) Gradient for experience {i}, action {j}: {gradientSigma}");
+                //Debug.Log($"Policy Loss (Mean) Gradient for experience {i}, action {j}: {gradientMean}");
+                //Debug.Log($"Policy Loss (Sigma) Gradient for experience {i}, action {j}: {gradientSigma}");
             }
 
             // Backpropagate the gradients through the policy network
             float[] instantGradients = policyNetwork.BackPropogate(policyLossGradients, experiences[i].State);
 
-            for (int j = 0; j < totalGradients.Length; j++)
+            if(ArrayIsNaN(instantGradients))
             {
-                totalGradients[j] += instantGradients[j];
+                failedGradientArrays++;
+                Debug.Log($"NaN in Instant Gradients Experience {i} with policyLossGradients " + StringArray(policyLossGradients));
+            }
+            else
+            {
+                for (int j = 0; j < totalGradients.Length; j++)
+                {
+                    totalGradients[j] += instantGradients[j];
+                }
             }
         }
+
+
+        //print the % of failed gradient caculations
+        float totalGradientCount = (float)experiences.Count * (float)experiences[0].Action.Length;
+        float failedGradientPercent = (failedGradients / totalGradientCount) * 100f;
+        Debug.Log("Total gradients failed: " + failedGradientPercent + "%");
+
+        //print the % of mysteriously failed gradient arrays
+        float totalGradientArraysCount = (float)experiences.Count;
+        float failedGradientArraysPercent = (failedGradientArrays / totalGradientArraysCount) * 100f;
+        Debug.Log("Total gradients arrays failed: " + failedGradientArraysPercent + "%");
+
+        Debug.Log("Culmitive Gradients: " + StringArray(totalGradients));
 
         //average the gradients
         for (int i = 0; i < totalGradients.Length; i++)
@@ -349,6 +390,28 @@ public class NeuralNetwork_PPO
 
         // Scale to the desired mean and standard deviation
         return Mathf.Abs(mean + standardDeviation * randStdNormal);
+    }
+
+    private string StringArray(float[] arr)
+    {
+        string str = "";
+        for(int i = 0; i < arr.Length; i++)
+        {
+            str += arr[i] + ", ";
+        }
+        return str;
+    }
+
+    private bool ArrayIsNaN(float[] arr)
+    {
+        for(int i = 0; i < arr.Length; i++)
+        {
+            if(arr[i].Equals(float.NaN))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 }
 
