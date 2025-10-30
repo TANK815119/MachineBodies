@@ -16,3 +16,5 @@ Scene description:
 -The PPO scenes are PPO test cases
 
 This project laid the foundations of my machine learning knowledge, but I have moved on to using standard tools like PyTorch and Tensorflow in Unity´s ML-Agents for superior performance and learning speed.
+
+This project is licensed under the [CC BY-NC-SA 4.0](http://creativecommons.org/licenses/by-nc-sa/4.0/) license.
